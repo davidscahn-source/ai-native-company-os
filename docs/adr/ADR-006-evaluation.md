@@ -18,12 +18,12 @@ Agent benchmark(§26), company-specific benchmark(§27), harness 비교(Proof 6)
 
 ## 3. Candidates
 
-| 후보 | 요약 |
-|---|---|
-| A. 자체 benchmark harness (`benchmarks/` + bench.* 테이블) | 시나리오 러너 + 채점기 자체 구현 |
-| B. Braintrust | eval SaaS, 데이터셋/실험 관리 우수 |
-| C. promptfoo | 오픈소스 eval 러너, config 기반 |
-| D. Langfuse evals | trace 연계 eval |
+| 후보                                                       | 요약                               |
+| ---------------------------------------------------------- | ---------------------------------- |
+| A. 자체 benchmark harness (`benchmarks/` + bench.* 테이블) | 시나리오 러너 + 채점기 자체 구현   |
+| B. Braintrust                                              | eval SaaS, 데이터셋/실험 관리 우수 |
+| C. promptfoo                                               | 오픈소스 eval 러너, config 기반    |
+| D. Langfuse evals                                          | trace 연계 eval                    |
 
 ## 4. Benchmark
 

@@ -1,12 +1,12 @@
 # AI NATIVE COMPANY OS — 통합 상세 기획서 v0.6
 
-| | |
-|---|---|
-| **Category** | AI-Native Company Operating System |
-| **Promise** | Connect your company. AI operates the rest. |
-| **Long-term** | Start a company. Install the operating system. |
+|               |                                                                                                                                |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| **Category**  | AI-Native Company Operating System                                                                                             |
+| **Promise**   | Connect your company. AI operates the rest.                                                                                    |
+| **Long-term** | Start a company. Install the operating system.                                                                                 |
 | **문서 상태** | v0.5 Master Spec + Concept v0.1 + 개발기획서 v0.1을 **적대적 검증(2026-08-08 리서치 4건)** 을 거쳐 단일 문서로 통합·업그레이드 |
-| **작성일** | 2026-08-08 |
+| **작성일**    | 2026-08-08                                                                                                                     |
 
 ---
 
@@ -32,23 +32,23 @@
 
 ### 반박되어 수정된 것
 
-| # | 기존 주장 | 검증 결과 | v0.6 반영 |
-|---|---|---|---|
-| 1 | "커넥터당 며칠이면 구현" (5종 공통) | **Gmail만 반박.** webhook 없음(Pub/Sub watch + 7일 갱신), `gmail.readonly`는 restricted scope → 연례 CASA Tier 2 심사($540~$4,500/년, 최초 1~3개월). 미들웨어를 껴도 우리 서버에 메일 저장 시 면제 불가 | Gmail을 MVP 5종에서 분리, **별도 트랙 G**로. MVP 5종은 Stripe/GitHub/Slack/Sentry/**Linear** (§21) |
-| 2 | Concept v0.1: "Composio/Pipedream을 underneath infrastructure로" | **반박.** Pipedream은 2025-11 Workday 인수 합의(존속 리스크), Composio는 $25M Series A 후 agent-skills 방향 피벗 — 둘 다 tenant 데이터 sync 인프라가 아님. Nango는 ELv2 라이선스, self-host 무료판은 production sync 제외 | ADR-001 "직접 구현" 유지, 근거 강화 (§30) |
-| 3 | Concept v0.1: "LiteLLM을 쓰면 된다" | **부분 반박.** LiteLLM proxy는 운영 부담 실증(메모리 누수 → 주기 재시작, 오픈 이슈 1,000+, 프로덕션 TCO 월 $2~3.5k). 2-프로바이더 규모엔 thin 자체 계층이 2026 build-vs-buy 컨센서스 | ADR-003 유지. 단 exit 경로를 "LiteLLM **SDK**(proxy 아님) 또는 Vercel/Cloudflare AI Gateway(무마진 pass-through)"로 갱신 (§24, §30) |
-| 4 | 개발기획서: 커넥터 5개 개별 구현 | **수정.** 진짜 공수는 개별 로직이 아니라 공통 부분(서명 검증, dedup, cursor/backfill, 재시도) | **공용 Sync Harness를 1급 컴포넌트로 승격** — 한 번 만들어 5종이 공유 (§21.1) |
-| 5 | Concept v0.1의 $49/mo 가격 | **의문 제기.** 무최적화 LLM COGS가 tenant당 월 $25~45로 추산됨 — $49 요금제는 마진이 없다 | 단위 경제성 섹션 신설, 최적화 로드맵 + 가격 가설 수정 (§28~29) |
-| 6 | 내(Claude) 이전 발언: "SIA/Self-Harness/HarnessOpt-Bench/Harness-Bench는 실존 미확인" | **내 주장이 반박됨.** 4개 전부 실존하는 2026년 arXiv 논문으로 확인 (지식 컷오프 이후 발표) | 정정. Improvement Lab 설계(§17)가 Self-Harness의 Weakness Mining→Proposal→Validation 루프와 구조 일치 — 설계 타당성 근거로 인용 (§30 ADR-012, §36) |
+| #   | 기존 주장                                                                             | 검증 결과                                                                                                                                                                                                                 | v0.6 반영                                                                                                                                          |
+| --- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | "커넥터당 며칠이면 구현" (5종 공통)                                                   | **Gmail만 반박.** webhook 없음(Pub/Sub watch + 7일 갱신), `gmail.readonly`는 restricted scope → 연례 CASA Tier 2 심사($540~$4,500/년, 최초 1~3개월). 미들웨어를 껴도 우리 서버에 메일 저장 시 면제 불가                   | Gmail을 MVP 5종에서 분리, **별도 트랙 G**로. MVP 5종은 Stripe/GitHub/Slack/Sentry/**Linear** (§21)                                                 |
+| 2   | Concept v0.1: "Composio/Pipedream을 underneath infrastructure로"                      | **반박.** Pipedream은 2025-11 Workday 인수 합의(존속 리스크), Composio는 $25M Series A 후 agent-skills 방향 피벗 — 둘 다 tenant 데이터 sync 인프라가 아님. Nango는 ELv2 라이선스, self-host 무료판은 production sync 제외 | ADR-001 "직접 구현" 유지, 근거 강화 (§30)                                                                                                          |
+| 3   | Concept v0.1: "LiteLLM을 쓰면 된다"                                                   | **부분 반박.** LiteLLM proxy는 운영 부담 실증(메모리 누수 → 주기 재시작, 오픈 이슈 1,000+, 프로덕션 TCO 월 $2~3.5k). 2-프로바이더 규모엔 thin 자체 계층이 2026 build-vs-buy 컨센서스                                      | ADR-003 유지. 단 exit 경로를 "LiteLLM **SDK**(proxy 아님) 또는 Vercel/Cloudflare AI Gateway(무마진 pass-through)"로 갱신 (§24, §30)                |
+| 4   | 개발기획서: 커넥터 5개 개별 구현                                                      | **수정.** 진짜 공수는 개별 로직이 아니라 공통 부분(서명 검증, dedup, cursor/backfill, 재시도)                                                                                                                             | **공용 Sync Harness를 1급 컴포넌트로 승격** — 한 번 만들어 5종이 공유 (§21.1)                                                                      |
+| 5   | Concept v0.1의 $49/mo 가격                                                            | **의문 제기.** 무최적화 LLM COGS가 tenant당 월 $25~45로 추산됨 — $49 요금제는 마진이 없다                                                                                                                                 | 단위 경제성 섹션 신설, 최적화 로드맵 + 가격 가설 수정 (§28~29)                                                                                     |
+| 6   | 내(Claude) 이전 발언: "SIA/Self-Harness/HarnessOpt-Bench/Harness-Bench는 실존 미확인" | **내 주장이 반박됨.** 4개 전부 실존하는 2026년 arXiv 논문으로 확인 (지식 컷오프 이후 발표)                                                                                                                                | 정정. Improvement Lab 설계(§17)가 Self-Harness의 Weakness Mining→Proposal→Validation 루프와 구조 일치 — 설계 타당성 근거로 인용 (§30 ADR-012, §36) |
 
 ### 공격받았지만 살아남은 것 (근거 보강)
 
-| # | 결정 | 살아남은 이유 |
-|---|---|---|
-| 1 | **MVP 커넥터 직접 구현** | 4종(Stripe/GitHub/Slack/Sentry)은 1급 API로 "며칠" 추정 확인. raw payload + webhook 제어 + credential 자체 보관이 graph 품질의 전제. 경쟁 인프라는 인수/피벗 리스크까지 확인됨 |
-| 2 | **Inngest (durable workflow)** | 승인 대기 `waitForEvent`(최대 1년), sleep(무료 7일/Pro 1년), self-host 탈출구 전부 확인. Temporal은 월 $100 최저가 + 최고 학습 곡선으로 "1~2인 팀에 과함" 확인. **새 조건 2개**: payload에 ref만 담기(+암호화 미들웨어), step 단위 과금 모니터링. Trigger.dev v4가 근소한 2위로 벤치마크 후보 교체 (Restate는 seed-stage 리스크로 제외) |
-| 3 | **자체 thin LLM gateway** | "라우팅 로직=우리 IP, 호출 계층=commodity" 구분이 2026 컨센서스와 일치. **새 조건**: 1일차부터 요청당 tenant×비용×지연 이벤트 방출 — 이걸 미루면 후회한다는 것이 공통 교훈 |
-| 4 | **Postgres 기반 graph/vector/auth/secret/compute 선택 (ADR-007~011)** | 이번 리서치 범위에서 반박 근거 미발견. 기존 근거 유지 |
+| #   | 결정                                                                  | 살아남은 이유                                                                                                                                                                                                                                                                                                                           |
+| --- | --------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **MVP 커넥터 직접 구현**                                              | 4종(Stripe/GitHub/Slack/Sentry)은 1급 API로 "며칠" 추정 확인. raw payload + webhook 제어 + credential 자체 보관이 graph 품질의 전제. 경쟁 인프라는 인수/피벗 리스크까지 확인됨                                                                                                                                                          |
+| 2   | **Inngest (durable workflow)**                                        | 승인 대기 `waitForEvent`(최대 1년), sleep(무료 7일/Pro 1년), self-host 탈출구 전부 확인. Temporal은 월 $100 최저가 + 최고 학습 곡선으로 "1~2인 팀에 과함" 확인. **새 조건 2개**: payload에 ref만 담기(+암호화 미들웨어), step 단위 과금 모니터링. Trigger.dev v4가 근소한 2위로 벤치마크 후보 교체 (Restate는 seed-stage 리스크로 제외) |
+| 3   | **자체 thin LLM gateway**                                             | "라우팅 로직=우리 IP, 호출 계층=commodity" 구분이 2026 컨센서스와 일치. **새 조건**: 1일차부터 요청당 tenant×비용×지연 이벤트 방출 — 이걸 미루면 후회한다는 것이 공통 교훈                                                                                                                                                              |
+| 4   | **Postgres 기반 graph/vector/auth/secret/compute 선택 (ADR-007~011)** | 이번 리서치 범위에서 반박 근거 미발견. 기존 근거 유지                                                                                                                                                                                                                                                                                   |
 
 ---
 
@@ -78,13 +78,13 @@
 
 ## §3. 경쟁 구도 (2026-08 검증 반영)
 
-| 경쟁자 | 정체 | 왜 우리와 다른가 | 검증에서 나온 사실 |
-|---|---|---|---|
-| n8n | Workflow builder | 사용자가 무엇을 자동화할지 알아야 함. 우리는 사용자에게 workflow builder를 노출하지 않음 | 사용자 대면 빌더 — 내부 durable execution 용도 아님 |
-| Pipedream | Integration infra | Business OS 아님 | **2025-11 Workday 인수 합의** — 독립 인프라로서의 미래 불확실 |
-| Composio | Agent tool-calling 플랫폼 | 데이터 sync 프레임워크 없음(backfill/cursor/dedup 부재) | $25M Series A 후 "agent skills"로 피벗 — 우리 요구에서 더 멀어짐 |
-| Relevance AI | AI Workforce | "Build your workforce" vs 우리의 "Connect your company" | — |
-| Merge.dev | Unified API | 카테고리 불일치(HRIS/ATS 중심), Stripe/Gmail/Slack/Sentry 미지원 | 카탈로그 확인 |
+| 경쟁자       | 정체                      | 왜 우리와 다른가                                                                         | 검증에서 나온 사실                                               |
+| ------------ | ------------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| n8n          | Workflow builder          | 사용자가 무엇을 자동화할지 알아야 함. 우리는 사용자에게 workflow builder를 노출하지 않음 | 사용자 대면 빌더 — 내부 durable execution 용도 아님              |
+| Pipedream    | Integration infra         | Business OS 아님                                                                         | **2025-11 Workday 인수 합의** — 독립 인프라로서의 미래 불확실    |
+| Composio     | Agent tool-calling 플랫폼 | 데이터 sync 프레임워크 없음(backfill/cursor/dedup 부재)                                  | $25M Series A 후 "agent skills"로 피벗 — 우리 요구에서 더 멀어짐 |
+| Relevance AI | AI Workforce              | "Build your workforce" vs 우리의 "Connect your company"                                  | —                                                                |
+| Merge.dev    | Unified API               | 카테고리 불일치(HRIS/ATS 중심), Stripe/Gmail/Slack/Sentry 미지원                         | 카탈로그 확인                                                    |
 
 **포지셔닝 문장: "Build your AI workforce"가 아니라 "Connect your company."**
 
@@ -175,11 +175,11 @@ Company, User, Employee, Customer, Contact, Lead, Contract, Subscription, Invoic
 
 **결정적 매칭 (confidence 1.0) — 항상 우선:**
 
-| 규칙 | 예 |
-|---|---|
-| provider 내부 FK | Stripe subscription → customer (`sub.customer`) |
-| 정규화된 이메일 정확 일치 | Stripe customer email = Slack 프로필 email |
-| 명시적 식별자 | Sentry release = GitHub commit SHA, PR merge commit = deployment SHA, Linear issue ↔ GitHub PR 링크 |
+| 규칙                      | 예                                                                                                  |
+| ------------------------- | --------------------------------------------------------------------------------------------------- |
+| provider 내부 FK          | Stripe subscription → customer (`sub.customer`)                                                     |
+| 정규화된 이메일 정확 일치 | Stripe customer email = Slack 프로필 email                                                          |
+| 명시적 식별자             | Sentry release = GitHub commit SHA, PR merge commit = deployment SHA, Linear issue ↔ GitHub PR 링크 |
 
 **휴리스틱 매칭 (confidence 0.5~0.9):** 이메일 도메인 일치(0.7), 이름 fuzzy + 시간 근접(0.6), Sentry issue ↔ 이슈 제목/스택 유사도(0.65), Slack 스레드 언급 ↔ entity 이름(0.5)
 
@@ -210,17 +210,20 @@ Connector 데이터를 그대로 AI에 던지지 않는다. 먼저 canonical eve
 
 ```typescript
 type CanonicalEvent = {
-  eventId: string; tenantId: string;
-  source: 'stripe'|'github'|'slack'|'sentry'|'linear'|'gmail'|'system'|'agent';
+  eventId: string;
+  tenantId: string;
+  source: "stripe" | "github" | "slack" | "sentry" | "linear" | "gmail" | "system" | "agent";
   sourceEventId: string;
-  entityType: EntityType; entityId: string | null;   // resolution 후 채움
-  eventType: EventType;                               // 'payment.failed' 등
+  entityType: EntityType;
+  entityId: string | null; // resolution 후 채움
+  eventType: EventType; // 'payment.failed' 등
   occurredAt: string;
-  payload: Record<string, unknown>;                   // 정규화된 최소 페이로드 (원본은 raw_events)
-  confidence: number;                                 // 원본 1.0, 파생 < 1.0
-  sensitivity: 'normal'|'sensitive'|'restricted';
-  correlationId: string | null; traceId: string | null;
-}
+  payload: Record<string, unknown>; // 정규화된 최소 페이로드 (원본은 raw_events)
+  confidence: number; // 원본 1.0, 파생 < 1.0
+  sensitivity: "normal" | "sensitive" | "restricted";
+  correlationId: string | null;
+  traceId: string | null;
+};
 ```
 
 **MVP event types**: `customer.created/updated`, `payment.failed/completed`, `subscription.cancelled/updated`, `contract.expiring`, `ticket.created/escalated`, `bug.detected`, `deployment.completed/failed`, `incident.detected/resolved`, `issue.created/updated`(Linear), `communication.received`, 파생: `customer.churn_risk_detected`, `cost.spike_detected`(Phase 2)
@@ -235,11 +238,11 @@ open-ended ask는 데모에선 강력하지만, 데이터가 답할 수 없는 �
 
 Ask 처리의 첫 단계는 답변 가능성 분류다 (FAST profile):
 
-| 분류 | 조건 | 행동 |
-|---|---|---|
-| **Answerable** | 필요한 entity/event가 연결된 소스에 존재 | 정상 응답 (evidence 필수) |
-| **Partially answerable** | 일부 데이터만 존재 | 답할 수 있는 부분 + **무엇이 없어서 어디까지인지 명시** ("Slack이 연결되지 않아 커뮤니케이션 신호는 반영되지 않았습니다") |
-| **Not answerable** | 데이터 부재 / 범위 밖 | **모른다고 말하고 이유를 말한다.** 가능하면 연결하면 답할 수 있는 소스 제안 |
+| 분류                     | 조건                                     | 행동                                                                                                                      |
+| ------------------------ | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| **Answerable**           | 필요한 entity/event가 연결된 소스에 존재 | 정상 응답 (evidence 필수)                                                                                                 |
+| **Partially answerable** | 일부 데이터만 존재                       | 답할 수 있는 부분 + **무엇이 없어서 어디까지인지 명시** ("Slack이 연결되지 않아 커뮤니케이션 신호는 반영되지 않았습니다") |
+| **Not answerable**       | 데이터 부재 / 범위 밖                    | **모른다고 말하고 이유를 말한다.** 가능하면 연결하면 답할 수 있는 소스 제안                                               |
 
 ### 13.2 하드 가드 (프롬프트가 아니라 코드)
 
@@ -255,12 +258,12 @@ Ask 처리의 첫 단계는 답변 가능성 분류다 (FAST profile):
 
 **MVP 4종** (사용자가 만들지 않는다 — 회사 생성 시 이미 설치됨):
 
-| Agent | Trigger | 산출물 |
-|---|---|---|
-| **Founder** | 매일 07:00 (tenant TZ) + user ask | Morning Brief — 타 agent insights를 종합 (원본 데이터를 직접 다 읽지 않음: 비용/일관성) |
-| **Revenue** | `payment.failed`, `subscription.cancelled`, 일간 스캔 | revenue risk insight, (후반) retry/dunning 제안 |
-| **Customer** | `ticket.escalated`, 주간 스캔 | churn risk insight (confidence 필수) |
-| **Engineering** | `incident.detected`, `deployment.failed`, `bug.detected` | incident→deployment→PR 인과 체인 + 영향 고객 |
+| Agent           | Trigger                                                  | 산출물                                                                                  |
+| --------------- | -------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| **Founder**     | 매일 07:00 (tenant TZ) + user ask                        | Morning Brief — 타 agent insights를 종합 (원본 데이터를 직접 다 읽지 않음: 비용/일관성) |
+| **Revenue**     | `payment.failed`, `subscription.cancelled`, 일간 스캔    | revenue risk insight, (후반) retry/dunning 제안                                         |
+| **Customer**    | `ticket.escalated`, 주간 스캔                            | churn risk insight (confidence 필수)                                                    |
+| **Engineering** | `incident.detected`, `deployment.failed`, `bug.detected` | incident→deployment→PR 인과 체인 + 영향 고객                                            |
 
 Phase 2+: Support, Contract, Finance, Growth, Security, Operations.
 
@@ -268,20 +271,27 @@ Phase 2+: Support, Contract, Finance, Growth, Security, Operations.
 
 ```typescript
 type AgentDefinition = {
-  key: string; identity: string; objective: string;
-  allowedTools: ToolRef[]; prohibitedTools: ToolRef[];
+  key: string;
+  identity: string;
+  objective: string;
+  allowedTools: ToolRef[];
+  prohibitedTools: ToolRef[];
   memoryPolicy: { read: MemoryScope[]; write: MemoryScope[] };
-  contextPolicy: { maxEvents: number; maxEntities: number; lookbackDays: number;
-                   untrustedContentMode: 'summary_only'|'quoted_block' };
-  modelPolicy: { profile: 'FAST'|'BALANCED'|'HIGH_REASONING'; maxTokensPerCall: number };
+  contextPolicy: {
+    maxEvents: number;
+    maxEntities: number;
+    lookbackDays: number;
+    untrustedContentMode: "summary_only" | "quoted_block";
+  };
+  modelPolicy: { profile: "FAST" | "BALANCED" | "HIGH_REASONING"; maxTokensPerCall: number };
   costBudget: { perRunUsd: number; perDayUsd: number };
   latencyBudget: { perRunMs: number };
-  approvalPolicy: { maxAutoRisk: 0|1 };
+  approvalPolicy: { maxAutoRisk: 0 | 1 };
   retryPolicy: { maxRetries: number };
-  escalationPolicy: { onFailure: 'notify_owner'|'silent_log' };
+  escalationPolicy: { onFailure: "notify_owner" | "silent_log" };
   evaluationPolicy: { benchmarkKeys: string[] };
   version: number;
-}
+};
 ```
 
 전 필드는 **코드 레벨로 강제**된다 (프롬프트 강제 아님).
@@ -325,13 +335,13 @@ trigger: incident.detected (Sentry alert/spike)
 
 ### Risk classification (모든 tool은 등록 시 risk를 코드로 선언 — agent가 판단하지 않음)
 
-| Risk | 정의 | 예 | 기본 정책 |
-|---|---|---|---|
-| 0 | Read only | graph/events 조회 | 자동 허용 |
-| 1 | Low-impact write | 내부 태스크 생성, owner DM, email draft | 가능한 자동 허용 |
-| 2 | External communication | 고객 이메일 발송, 채널 포스트 | 기본 approval |
-| 3 | Financial / production | invoice retry, plan 변경, deploy | mandatory approval |
-| 4 | Irreversible / sensitive | — (MVP 제외) | approval + 재인증 |
+| Risk | 정의                     | 예                                      | 기본 정책          |
+| ---- | ------------------------ | --------------------------------------- | ------------------ |
+| 0    | Read only                | graph/events 조회                       | 자동 허용          |
+| 1    | Low-impact write         | 내부 태스크 생성, owner DM, email draft | 가능한 자동 허용   |
+| 2    | External communication   | 고객 이메일 발송, 채널 포스트           | 기본 approval      |
+| 3    | Financial / production   | invoice retry, plan 변경, deploy        | mandatory approval |
+| 4    | Irreversible / sensitive | — (MVP 제외)                            | approval + 재인증  |
 
 ### Autonomy Level (회사별/agent별): 0 Observe / 1 Recommend / 2 Prepare / 3 Execute with approval / 4 Autonomous within policy. **MVP default 1~2.**
 
@@ -381,22 +391,22 @@ Execution → Trace → Failure classification → Weakness mining → Candidate
 
 > 모든 항목은 해당 ADR로 확정. ✔ = 이번 리서치로 검증됨.
 
-| 레이어 | 선택 | 검증 상태 | ADR |
-|---|---|---|---|
-| Language / Monorepo | TypeScript / pnpm + turborepo | — | — |
-| Frontend + API | Next.js (App Router), Route Handlers | — | — |
-| DB | Postgres (Supabase) + Drizzle, RLS + 앱 레벨 이중 가드 | — | 008/009 |
-| Graph | Postgres 테이블 + recursive CTE, `packages/graph` 캡슐화 | — | 008 |
-| Vector | pgvector (hybrid: cosine + tsvector) | — | 007 |
-| Durable workflow | **Inngest** ✔ (payload ref-only + 암호화 미들웨어, step 과금 모니터링) — 벤치마크 2후보: Trigger.dev v4 | ✔ 확정 근거 확보 | 002 |
-| Connector | **직접 구현 5종 + 공용 Sync Harness** ✔ | ✔ 반박 시도 실패, 근거 강화 | 001 |
-| LLM Gateway | **자체 thin** (Anthropic+OpenAI SDK) ✔ + day-1 비용 이벤트 | ✔ 조건부 생존 | 003 |
-| Agent Runtime | 자체 실행 루프 (harness = IP) | 문헌 근거 보강 | 004 |
-| Observability | 자체 traces 테이블 = canonical, OTel 계측 | LiteLLM 사례가 반증 강화 | 005 |
-| Eval | 자체 benchmark harness + LLM judge | 문헌 근거 보강 | 006 |
-| Auth | Supabase Auth + RLS | — | 009 |
-| Secrets | envelope encryption (tenant DEK + cloud KMS root) | — | 010 |
-| Hosting | Vercel(web) + Railway(worker, Docker) | — | 011 |
+| 레이어              | 선택                                                                                                    | 검증 상태                   | ADR     |
+| ------------------- | ------------------------------------------------------------------------------------------------------- | --------------------------- | ------- |
+| Language / Monorepo | TypeScript / pnpm + turborepo                                                                           | —                           | —       |
+| Frontend + API      | Next.js (App Router), Route Handlers                                                                    | —                           | —       |
+| DB                  | Postgres (Supabase) + Drizzle, RLS + 앱 레벨 이중 가드                                                  | —                           | 008/009 |
+| Graph               | Postgres 테이블 + recursive CTE, `packages/graph` 캡슐화                                                | —                           | 008     |
+| Vector              | pgvector (hybrid: cosine + tsvector)                                                                    | —                           | 007     |
+| Durable workflow    | **Inngest** ✔ (payload ref-only + 암호화 미들웨어, step 과금 모니터링) — 벤치마크 2후보: Trigger.dev v4 | ✔ 확정 근거 확보            | 002     |
+| Connector           | **직접 구현 5종 + 공용 Sync Harness** ✔                                                                 | ✔ 반박 시도 실패, 근거 강화 | 001     |
+| LLM Gateway         | **자체 thin** (Anthropic+OpenAI SDK) ✔ + day-1 비용 이벤트                                              | ✔ 조건부 생존               | 003     |
+| Agent Runtime       | 자체 실행 루프 (harness = IP)                                                                           | 문헌 근거 보강              | 004     |
+| Observability       | 자체 traces 테이블 = canonical, OTel 계측                                                               | LiteLLM 사례가 반증 강화    | 005     |
+| Eval                | 자체 benchmark harness + LLM judge                                                                      | 문헌 근거 보강              | 006     |
+| Auth                | Supabase Auth + RLS                                                                                     | —                           | 009     |
+| Secrets             | envelope encryption (tenant DEK + cloud KMS root)                                                       | —                           | 010     |
+| Hosting             | Vercel(web) + Railway(worker, Docker)                                                                   | —                           | 011     |
 
 ## §19. 시스템 아키텍처
 
@@ -455,13 +465,13 @@ Graph 조회 API (`packages/graph`, recursive CTE, depth ≤ 4 가드):
 
 ### 21.2 MVP 5종 (개정: Gmail → Linear)
 
-| Provider | Auth | Backfill | Subscribe | Entity 매핑 |
-|---|---|---|---|---|
-| **Stripe** | Restricted API key (read-only) | customers, subscriptions, invoices, charges (12개월) | webhook: `customer.*`, `invoice.*`, `charge.*` | customer→Customer, invoice→Invoice, charge→Payment |
-| **GitHub** | GitHub App (repo/issues/deployments read) | repos, open issues, PRs(90일), deployments | webhook: issues, PR, push, deployment_status, release | PR body `fixes #N` → resolves 링크, SHA → deployment contains |
-| **Slack** | App OAuth (지정 채널 history/read, users:read) | 지정 채널 30일 | Events API: message.channels | 멤버→Employee, 스레드→Communication. bot DM은 Risk 1 action |
-| **Sentry** | Internal Integration token (read) | projects, unresolved issues(30일), releases | webhook: issue/metric alerts | project→Service, spike→Incident, release↔GitHub SHA |
-| **Linear** ✚ | OAuth (read) | teams, issues(90일), cycles | webhook: Issue events | issue→Bug/Task, Linear↔GitHub PR 링크(결정적) |
+| Provider     | Auth                                           | Backfill                                             | Subscribe                                             | Entity 매핑                                                   |
+| ------------ | ---------------------------------------------- | ---------------------------------------------------- | ----------------------------------------------------- | ------------------------------------------------------------- |
+| **Stripe**   | Restricted API key (read-only)                 | customers, subscriptions, invoices, charges (12개월) | webhook: `customer.*`, `invoice.*`, `charge.*`        | customer→Customer, invoice→Invoice, charge→Payment            |
+| **GitHub**   | GitHub App (repo/issues/deployments read)      | repos, open issues, PRs(90일), deployments           | webhook: issues, PR, push, deployment_status, release | PR body `fixes #N` → resolves 링크, SHA → deployment contains |
+| **Slack**    | App OAuth (지정 채널 history/read, users:read) | 지정 채널 30일                                       | Events API: message.channels                          | 멤버→Employee, 스레드→Communication. bot DM은 Risk 1 action   |
+| **Sentry**   | Internal Integration token (read)              | projects, unresolved issues(30일), releases          | webhook: issue/metric alerts                          | project→Service, spike→Incident, release↔GitHub SHA           |
+| **Linear** ✚ | OAuth (read)                                   | teams, issues(90일), cycles                          | webhook: Issue events                                 | issue→Bug/Task, Linear↔GitHub PR 링크(결정적)                 |
 
 **Linear 승격 근거**: ICP(developer-led startup)의 실사용 도구이고, GitHub와의 결정적 링크가 많아 graph 품질에 즉시 기여하며, 규제 장벽이 없다.
 
@@ -469,7 +479,7 @@ Graph 조회 API (`packages/graph`, recursive CTE, depth ≤ 4 가드):
 
 리서치로 확정된 사실:
 
-- `gmail.readonly`는 **restricted scope** → OAuth 앱 심사(2~8주) + **연례 CASA Tier 2** (lab 검증 필수 — self-scan 폐지됨, TAC Security 기준 ~$540부터, 시장 밴드 $500~4,500/년) + 최초 총 1~3개월
+- `gmail.readonly`는 **restricted scope** → OAuth 앱 심사(2~~8주) + **연례 CASA Tier 2** (lab 검증 필수 — self-scan 폐지됨, TAC Security 기준 ~~$540부터, 시장 밴드 $500~~4,500/년) + 최초 총 1~~3개월
 - `gmail.send`는 **sensitive scope — CASA 불필요** (브랜드 심사만)
 - 미검증 테스트 모드: 100명 한도 + **refresh token 7일 만료**
 - `gmail.metadata`도 restricted — 우회 안 됨. Pub/Sub watch도 read scope 필요
@@ -477,12 +487,12 @@ Graph 조회 API (`packages/graph`, recursive CTE, depth ≤ 4 가드):
 
 **트랙 G 계획:**
 
-| 단계 | 내용 |
-|---|---|
-| Phase 1 알파 | Gmail-read를 **테스트 모드**로 자기 회사에만 연결 (7일 재인증 UX 감수). `communication.received` → ticket 후보 분류기 검증 |
-| Phase 1 후반 | `gmail.send`만 프로덕션 심사 (CASA 불필요) → dunning/고객 이메일 발송(Risk 2) 활성화 |
-| Phase 2 진입 3개월 전 | CASA Tier 2 착수 (예산 ~$1~5k/년 + 심사 대응 2~4주 엔지니어링). 병행: Workspace 고객은 admin-trust 경로 안내 |
-| 대안 상시 검토 | 포워딩 주소 기반 수신(고객이 support@를 우리 주소로 포워딩 — scope 심사 자체가 불필요)을 support 시나리오의 우회로로 프로토타입 |
+| 단계                  | 내용                                                                                                                            |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Phase 1 알파          | Gmail-read를 **테스트 모드**로 자기 회사에만 연결 (7일 재인증 UX 감수). `communication.received` → ticket 후보 분류기 검증      |
+| Phase 1 후반          | `gmail.send`만 프로덕션 심사 (CASA 불필요) → dunning/고객 이메일 발송(Risk 2) 활성화                                            |
+| Phase 2 진입 3개월 전 | CASA Tier 2 착수 (예산 ~~$1~~5k/년 + 심사 대응 2~4주 엔지니어링). 병행: Workspace 고객은 admin-trust 경로 안내                  |
+| 대안 상시 검토        | 포워딩 주소 기반 수신(고객이 support@를 우리 주소로 포워딩 — scope 심사 자체가 불필요)을 support 시나리오의 우회로로 프로토타입 |
 
 ## §22. Agent Runtime
 
@@ -526,15 +536,15 @@ llm.call({ tenantId, runId, traceRef,
 
 ## §25. 보안 & 멀티테넌시
 
-| 항목 | 구현 |
-|---|---|
+| 항목             | 구현                                                                                                                                                                       |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Tenant isolation | ① Postgres RLS 전 테이블 ② Drizzle tenant-scoped client(자동 주입 + raw query lint 금지) ③ CI cross-tenant 침투 테스트 suite. 매칭/검색/graph 순회 전부 tenant 내부로 한정 |
-| Credential | envelope: KMS root → tenant DEK → AES-256-GCM. 복호화는 CredentialVault 모듈 단일 chokepoint, agent tool에서 import 금지(lint + policy 이중) |
-| Webhook | 서명 검증 + 재생 방지 (Sync Harness 공통) |
-| Prompt injection | untrusted 격리 + tool 인자 검사 + **최종 방어 = approval gate** (§16) |
-| Token | short-lived 우선 (GitHub App 1h). Stripe restricted key는 read-only 최소 scope |
-| Audit | append-only (DB 권한 레벨) |
-| 암호화 | TLS 전 구간 + at-rest (Supabase 기본) |
+| Credential       | envelope: KMS root → tenant DEK → AES-256-GCM. 복호화는 CredentialVault 모듈 단일 chokepoint, agent tool에서 import 금지(lint + policy 이중)                               |
+| Webhook          | 서명 검증 + 재생 방지 (Sync Harness 공통)                                                                                                                                  |
+| Prompt injection | untrusted 격리 + tool 인자 검사 + **최종 방어 = approval gate** (§16)                                                                                                      |
+| Token            | short-lived 우선 (GitHub App 1h). Stripe restricted key는 read-only 최소 scope                                                                                             |
+| Audit            | append-only (DB 권한 레벨)                                                                                                                                                 |
+| 암호화           | TLS 전 구간 + at-rest (Supabase 기본)                                                                                                                                      |
 
 ## §26. Observability
 
@@ -560,20 +570,20 @@ llm.call({ tenantId, runId, traceRef,
 
 **무최적화 시 (naive):**
 
-| 항목 | 볼륨/일 | 토큰/런 (in/out) | profile | $/일 |
-|---|---|---|---|---|
-| Morning Brief (Founder) | 1 | 50k / 3k | BALANCED | ~$0.20 |
-| 하위 agent 런 (revenue/customer/eng, 이벤트 트리거) | 20 | 15k / 1k | FAST | ~$0.40 |
-| Ask 질의 | 5 | 20k / 1.5k | BALANCED | ~$0.41 |
-| Entity resolution LLM 판정 | 30 | 2k / 0.2k | FAST | ~$0.09 |
-| 분류기 (ticket 등) | 50 | 1k / 0.1k | FAST | ~$0.08 |
-| **합계** | | | | **~$1.2/일 ≈ $35/월** |
+| 항목                                                | 볼륨/일 | 토큰/런 (in/out) | profile  | $/일                  |
+| --------------------------------------------------- | ------- | ---------------- | -------- | --------------------- |
+| Morning Brief (Founder)                             | 1       | 50k / 3k         | BALANCED | ~$0.20                |
+| 하위 agent 런 (revenue/customer/eng, 이벤트 트리거) | 20      | 15k / 1k         | FAST     | ~$0.40                |
+| Ask 질의                                            | 5       | 20k / 1.5k       | BALANCED | ~$0.41                |
+| Entity resolution LLM 판정                          | 30      | 2k / 0.2k        | FAST     | ~$0.09                |
+| 분류기 (ticket 등)                                  | 50      | 1k / 0.1k        | FAST     | ~$0.08                |
+| **합계**                                            |         |                  |          | **~$1.2/일 ≈ $35/월** |
 
-여기에 Inngest·호스팅·DB 배분분 ~$5~10/월을 더하면 **tenant당 원가 $40~45/월** — Concept v0.1의 $49/mo 요금제는 마진이 사실상 0이다.
+여기에 Inngest·호스팅·DB 배분분 ~~$5~10/월을 더하면 **tenant당 원가 $40~~45/월** — Concept v0.1의 $49/mo 요금제는 마진이 사실상 0이다.
 
 **최적화 레버 (적용 순서대로):**
 
-1. **Prompt caching** — agent 시스템 프롬프트/그래프 컨텍스트의 안정 prefix 캐싱: 캐시 읽기 ~0.1× (브리프·ask의 입력 대부분) → 입력 비용 60~80% 절감
+1. **Prompt caching** — agent 시스템 프롬프트/그래프 컨텍스트의 안정 prefix 캐싱: 캐시 읽기 ~~0.1× (브리프·ask의 입력 대부분) → 입력 비용 60~~80% 절감
 2. **Batch API** — Morning Brief·주간 스캔은 지연 무관: 50% 할인
 3. **FAST 강등** — 하위 agent 스캔의 1차 패스를 FAST로, 신호 감지 시에만 BALANCED 승격
 4. **Insight 재사용** — 동일 질문/동일 데이터 상태는 재계산하지 않음 (events 워터마크 기반)
@@ -582,11 +592,11 @@ llm.call({ tenantId, runId, traceRef,
 
 ## §29. 가격 가설 (v0.6 수정)
 
-| Plan | 가격 가설 | 포함 | 원가 구조 |
-|---|---|---|---|
-| **Starter** | **$99/월** | 커넥터 5, agent 4, 3 workflows, Managed AI (Automatic routing) | COGS $10~20 → 매출총이익 80%± |
-| **Growth** | $249/월 | + 커넥터 추가, autonomy L3, 우선 추론, 사용량 상한 상향 | |
-| **Private AI** | Phase 3 | dedicated inference, VPC, residency | |
+| Plan           | 가격 가설  | 포함                                                           | 원가 구조                     |
+| -------------- | ---------- | -------------------------------------------------------------- | ----------------------------- |
+| **Starter**    | **$99/월** | 커넥터 5, agent 4, 3 workflows, Managed AI (Automatic routing) | COGS $10~20 → 매출총이익 80%± |
+| **Growth**     | $249/월    | + 커넥터 추가, autonomy L3, 우선 추론, 사용량 상한 상향        |                               |
+| **Private AI** | Phase 3    | dedicated inference, VPC, residency                            |                               |
 
 - $49는 마진 구조상 불가 (§28) — 단 **AI 사용량 상한이 낮은 라이트 플랜**으로는 재검토 가능
 - 가격의 최종 검증은 Phase 1 종료 시 실측 COGS + 알파 고객 지불의사 인터뷰로. 이 표는 가설이다
@@ -598,19 +608,19 @@ llm.call({ tenantId, runId, traceRef,
 
 ## §30. 재검토 요약표
 
-| ADR | 기존 추천 | 재검토 판정 | 변경 내용 |
-|---|---|---|---|
-| **001 Connector** | 직접 구현 (MVP 5종) | ✅ **유지 + 근거 강화** | ① Pipedream: Workday 인수(2025-11) → 후보에서 사실상 탈락 ② Composio: agent-skills 피벗, sync 프레임워크 부재 확인 ③ Nango: ELv2, self-host 무료판은 production sync 제외 — "저비용 자가호스팅" 논거 소멸 ④ **수정**: 5개 개별 구현 → 공용 Sync Harness + normalizer 구조 (§21.1) ⑤ **수정**: MVP 구성 Gmail→Linear, Gmail은 트랙 G |
-| **002 Workflow** | Inngest | ✅ **유지 + 조건 3개** | ① 승인 대기·sleep·self-host 전부 실증 확인 ② Temporal $100/월 floor + 학습 곡선 확인 ③ **신규 조건**: payload ref-only + 암호화 미들웨어(cloud 경유 확인됨), step 단위 과금 모니터링 ④ **수정**: 벤치마크 2후보를 Restate→**Trigger.dev v4**로 교체 (waitpoint token이 승인 플로우에 우수, 단 코드가 그들 인프라에서 실행 — 프라이버시에서 감점. Restate는 seed-stage 벤더 리스크) |
-| **003 LLM Gateway** | 자체 thin | ✅ **유지 + 2개 갱신** | ① LiteLLM proxy 운영 부담 실증(메모리 누수, 이슈 1,000+, TCO 월 $2~3.5k) — "그냥 LiteLLM 쓰자"는 반론 기각 ② **신규 조건**: day-1 요청당 비용 이벤트 (§24) ③ **수정**: exit 경로를 LiteLLM **SDK** 또는 Vercel/Cloudflare AI Gateway(무마진 pass-through)로 갱신. Portkey(라우팅이 그들 config DSL로)·OpenRouter(수수료+라우팅 위탁)는 in-house 라우팅 제약과 불일치 확인 |
-| **004 Agent Runtime** | 자체 루프 | ✅ **유지 + 문헌 보강** | "harness가 성능을 좌우한다"가 추정이 아니라 문헌으로 확인됨: Harness-Bench(arXiv:2605.27922 — 모델 간 harness 효과 측정), Self-Harness(2606.09498). harness = IP 논거가 강화됨 |
-| **005 Observability** | 자체 traces = canonical | ✅ **유지** | LiteLLM 사례(관측을 proxy에 위탁했을 때의 운영 부담)가 방증. 변경 없음 |
-| **006 Evaluation** | 자체 benchmark harness | ✅ **유지 + 문헌 보강** | HarnessOpt-Bench(arXiv:2608.06301 — LLM을 harness optimizer로 평가), Harness-Bench가 우리 Proof 6 방법론의 선례. 시나리오 데이터 자체 소유 원칙 유지 |
-| **007 Knowledge Store** | pgvector | ✅ **유지** | 반박 근거 미발견. 재검토 임계(p95 > 200ms, 수천만 벡터) 유지 |
-| **008 Company Graph** | Postgres + CTE | ✅ **유지** | 반박 근거 미발견. 정량 임계(pathBetween p95 > 500ms 지속, depth 5+ 요구, relationship 1천만/tenant) 유지 |
-| **009 Auth/Tenant** | Supabase Auth + RLS 이중 | ✅ **유지** | 변경 없음. Sprint 1에서 RLS+Drizzle 이중 가드 실증이 확정 조건 |
-| **010 Secrets** | envelope + cloud KMS | ✅ **유지** | 변경 없음. Gmail 트랙 G의 CASA 심사가 어차피 이 수준의 암호화·접근통제를 요구 — 선행 투자가 심사 대비도 됨 |
-| **011 Compute** | Vercel + Railway + Supabase | ✅ **유지** | 변경 없음. worker Docker 유지가 이전 비용 상한 |
+| ADR                      | 기존 추천                        | 재검토 판정                  | 변경 내용                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| ------------------------ | -------------------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **001 Connector**        | 직접 구현 (MVP 5종)              | ✅ **유지 + 근거 강화**      | ① Pipedream: Workday 인수(2025-11) → 후보에서 사실상 탈락 ② Composio: agent-skills 피벗, sync 프레임워크 부재 확인 ③ Nango: ELv2, self-host 무료판은 production sync 제외 — "저비용 자가호스팅" 논거 소멸 ④ **수정**: 5개 개별 구현 → 공용 Sync Harness + normalizer 구조 (§21.1) ⑤ **수정**: MVP 구성 Gmail→Linear, Gmail은 트랙 G                                                                                                  |
+| **002 Workflow**         | Inngest                          | ✅ **유지 + 조건 3개**       | ① 승인 대기·sleep·self-host 전부 실증 확인 ② Temporal $100/월 floor + 학습 곡선 확인 ③ **신규 조건**: payload ref-only + 암호화 미들웨어(cloud 경유 확인됨), step 단위 과금 모니터링 ④ **수정**: 벤치마크 2후보를 Restate→**Trigger.dev v4**로 교체 (waitpoint token이 승인 플로우에 우수, 단 코드가 그들 인프라에서 실행 — 프라이버시에서 감점. Restate는 seed-stage 벤더 리스크)                                                   |
+| **003 LLM Gateway**      | 자체 thin                        | ✅ **유지 + 2개 갱신**       | ① LiteLLM proxy 운영 부담 실증(메모리 누수, 이슈 1,000+, TCO 월 $2~3.5k) — "그냥 LiteLLM 쓰자"는 반론 기각 ② **신규 조건**: day-1 요청당 비용 이벤트 (§24) ③ **수정**: exit 경로를 LiteLLM **SDK** 또는 Vercel/Cloudflare AI Gateway(무마진 pass-through)로 갱신. Portkey(라우팅이 그들 config DSL로)·OpenRouter(수수료+라우팅 위탁)는 in-house 라우팅 제약과 불일치 확인                                                            |
+| **004 Agent Runtime**    | 자체 루프                        | ✅ **유지 + 문헌 보강**      | "harness가 성능을 좌우한다"가 추정이 아니라 문헌으로 확인됨: Harness-Bench(arXiv:2605.27922 — 모델 간 harness 효과 측정), Self-Harness(2606.09498). harness = IP 논거가 강화됨                                                                                                                                                                                                                                                       |
+| **005 Observability**    | 자체 traces = canonical          | ✅ **유지**                  | LiteLLM 사례(관측을 proxy에 위탁했을 때의 운영 부담)가 방증. 변경 없음                                                                                                                                                                                                                                                                                                                                                               |
+| **006 Evaluation**       | 자체 benchmark harness           | ✅ **유지 + 문헌 보강**      | HarnessOpt-Bench(arXiv:2608.06301 — LLM을 harness optimizer로 평가), Harness-Bench가 우리 Proof 6 방법론의 선례. 시나리오 데이터 자체 소유 원칙 유지                                                                                                                                                                                                                                                                                 |
+| **007 Knowledge Store**  | pgvector                         | ✅ **유지**                  | 반박 근거 미발견. 재검토 임계(p95 > 200ms, 수천만 벡터) 유지                                                                                                                                                                                                                                                                                                                                                                         |
+| **008 Company Graph**    | Postgres + CTE                   | ✅ **유지**                  | 반박 근거 미발견. 정량 임계(pathBetween p95 > 500ms 지속, depth 5+ 요구, relationship 1천만/tenant) 유지                                                                                                                                                                                                                                                                                                                             |
+| **009 Auth/Tenant**      | Supabase Auth + RLS 이중         | ✅ **유지**                  | 변경 없음. Sprint 1에서 RLS+Drizzle 이중 가드 실증이 확정 조건                                                                                                                                                                                                                                                                                                                                                                       |
+| **010 Secrets**          | envelope + cloud KMS             | ✅ **유지**                  | 변경 없음. Gmail 트랙 G의 CASA 심사가 어차피 이 수준의 암호화·접근통제를 요구 — 선행 투자가 심사 대비도 됨                                                                                                                                                                                                                                                                                                                           |
+| **011 Compute**          | Vercel + Railway + Supabase      | ✅ **유지**                  | 변경 없음. worker Docker 유지가 이전 비용 상한                                                                                                                                                                                                                                                                                                                                                                                       |
 | **012 Self-Improvement** | MVP 수동 + Lab-ready 데이터 규율 | ✅ **유지 + 문헌 대폭 보강** | 실존 확인된 직접 문헌: SIA(arXiv:2605.27276 — harness+weight 개선 루프), Self-Harness(우리 Lab 루프와 동형). 확립된 앵커: Darwin Gödel Machine(2505.22954), GEPA(2507.19457, ICLR 2026 Oral), DSPy(2310.03714), AlphaEvolve(2506.13131), ADAS(2408.08435). **결론 불변**: 자동화는 Phase 2+, MVP의 결정은 "데이터를 Lab-ready로 쌓는 것"(harness_version 태깅, 실패 분류 체계, trace→시나리오 변환 가능 포맷, 수동 promotion 게이트) |
 
 > 상세 ADR 문서 12건은 별도 파일로 유지·갱신한다. 이 표가 v0.6 시점의 판정 기록이다.
@@ -622,6 +632,7 @@ llm.call({ tenantId, runId, traceRef,
 ## §31. Phase 0 — Technical Validation (Sprint 1~3, 3주)
 
 **Sprint 1 — 뼈대 + Proof 1**
+
 - 모노레포, DB 스키마 v1, tenant-scoped client + RLS 이중 가드 (ADR-009 확정)
 - **공용 Sync Harness v1** (서명 검증·dedup·cursor·재시도)
 - Stripe + GitHub connector (harness 위에 normalizer만)
@@ -629,6 +640,7 @@ llm.call({ tenantId, runId, traceRef,
 - ✅ Proof 1: 실계정 Stripe+GitHub 연결, entity 생성
 
 **Sprint 2 — Graph + Proof 2, 5**
+
 - Entity resolution v1 (결정적 + 이메일) + golden set 채점 절차 수립 (§11.3)
 - graph API 5종 (neighbors/timeline/pathBetween/impactedCustomers)
 - Agent Runtime 스켈레톤 + traces
@@ -636,6 +648,7 @@ llm.call({ tenantId, runId, traceRef,
 - ✅ Proof 2: customer 1명 payment→ticket(mock)→issue 연결 / ✅ Proof 5: trace 저장·조회
 
 **Sprint 3 — Brief + Proof 3, 4, 6**
+
 - Founder Agent v1 + Morning Brief (evidence 하드 가드)
 - Action Engine 최소 (risk 1 tool + approval API) + Policy Engine 최소
 - Benchmark harness v1: 시나리오 5개, harness 2종 비교 러너
@@ -645,16 +658,16 @@ llm.call({ tenantId, runId, traceRef,
 
 ## §32. Phase 1 — Local Alpha (Sprint 4~11, 8주)
 
-| Sprint | 내용 |
-|---|---|
-| 4 | Onboarding UI 전체 (connect → discovery 카운트업), Sentry connector |
-| 5 | **Linear connector**, Slack connector(읽기 + owner DM). Gmail 트랙 G-1: 테스트 모드 read + 분류기 |
-| 6 | Customer Risk workflow + Customer Agent, Command Center v1 (AI COST 카드 포함) |
-| 7 | Ask 화면 (SSE) + **answerability 판정** (§13), Incident Intelligence + Engineering Agent |
-| 8 | Revenue Agent(Brief 섹션으로), impactedCustomers 최적화, entity resolution 휴리스틱+LLM 계층 |
-| 9 | Approvals UI, Entity 페이지(추정 링크 confirm/reject), Audit/Trace UI |
-| 10 | Risk 2 tool (slack.post, gmail.send — 트랙 G-2: send-only 심사), execute-time policy re-check |
-| 11 | Hardening: 자기 회사 + 지인 회사 1곳 온보딩, §34 지표 실측, **비용 최적화 1차 (캐싱·배치— §28 레버 1·2)** |
+| Sprint | 내용                                                                                                      |
+| ------ | --------------------------------------------------------------------------------------------------------- |
+| 4      | Onboarding UI 전체 (connect → discovery 카운트업), Sentry connector                                       |
+| 5      | **Linear connector**, Slack connector(읽기 + owner DM). Gmail 트랙 G-1: 테스트 모드 read + 분류기         |
+| 6      | Customer Risk workflow + Customer Agent, Command Center v1 (AI COST 카드 포함)                            |
+| 7      | Ask 화면 (SSE) + **answerability 판정** (§13), Incident Intelligence + Engineering Agent                  |
+| 8      | Revenue Agent(Brief 섹션으로), impactedCustomers 최적화, entity resolution 휴리스틱+LLM 계층              |
+| 9      | Approvals UI, Entity 페이지(추정 링크 confirm/reject), Audit/Trace UI                                     |
+| 10     | Risk 2 tool (slack.post, gmail.send — 트랙 G-2: send-only 심사), execute-time policy re-check             |
+| 11     | Hardening: 자기 회사 + 지인 회사 1곳 온보딩, §34 지표 실측, **비용 최적화 1차 (캐싱·배치— §28 레버 1·2)** |
 
 ## §33. Phase 2~4 (방향)
 
@@ -672,31 +685,31 @@ llm.call({ tenantId, runId, traceRef,
 
 **품질 (v0.6 구체화):**
 
-| 항목 | 기준 |
-|---|---|
-| Entity resolution | **precision ≥ 95%, coverage ≥ 85%** (golden set 100건, 주 1회 채점 — §11.3) |
-| Evidence | critical insight의 evidence 100% (하드 가드로 렌더 차단) |
-| "모른다" | answerability 오분류(답 못할 것을 답함) — 알파 기간 표본 검사에서 0 목표 |
-| Audit | write action audit 기록 100% |
-| Isolation | cross-tenant leakage 0 (침투 테스트 suite green) |
-| Policy | critical action policy gate 100%, 우회 경로 0 (테스트로 증명) |
-| **비용 (신규)** | 활성 tenant당 LLM COGS 실측 → 최적화 1차 후 **$20/월 이하** (목표 $8~15) |
-| Connector | 실계정 e2e (backfill 완주 + webhook→event), 서명 검증 테스트, credential 암호화 확인 |
+| 항목              | 기준                                                                                 |
+| ----------------- | ------------------------------------------------------------------------------------ |
+| Entity resolution | **precision ≥ 95%, coverage ≥ 85%** (golden set 100건, 주 1회 채점 — §11.3)          |
+| Evidence          | critical insight의 evidence 100% (하드 가드로 렌더 차단)                             |
+| "모른다"          | answerability 오분류(답 못할 것을 답함) — 알파 기간 표본 검사에서 0 목표             |
+| Audit             | write action audit 기록 100%                                                         |
+| Isolation         | cross-tenant leakage 0 (침투 테스트 suite green)                                     |
+| Policy            | critical action policy gate 100%, 우회 경로 0 (테스트로 증명)                        |
+| **비용 (신규)**   | 활성 tenant당 LLM COGS 실측 → 최적화 1차 후 **$20/월 이하** (목표 $8~15)             |
+| Connector         | 실계정 e2e (backfill 완주 + webhook→event), 서명 검증 테스트, credential 암호화 확인 |
 
 **MVP Must-Not-Build** (v0.5 유지): Full CRM, 회계, payroll, 완전한 계약/프로젝트 관리, 자체 email 클라이언트/Slack/observability 백엔드/vector DB, 수백 개 자체 커넥터, 자체 foundation LLM.
 
 ## §35. 오픈 이슈
 
-| # | 이슈 | 결정 시한 | 비고 |
-|---|---|---|---|
-| 1 | Inngest vs Trigger.dev v4 실측 (Proof 4 시나리오) | Sprint 2 | ADR-002. Restate 제외 확정 |
-| 2 | Gmail 포워딩 주소 방식 프로토타입 (CASA 완전 우회 경로) | Phase 1 중 | 트랙 G 대안 |
-| 3 | usage 데이터 소스 — 자체 이벤트 수집은 must-not-build 저촉 소지 | Phase 1 중 | Stripe metering / PostHog 연동 검토 |
-| 4 | LLM judge 신뢰도 기준 절차 (사람 채점 50건 대조) | Sprint 3 | ADR-006 |
-| 5 | 가격 $99 가설의 지불의사 검증 방법 (알파 고객 인터뷰 설계) | Phase 1 종료 시 | §29 |
-| 6 | Supabase RLS + Drizzle 이중 가드의 성능 오버헤드 실측 | Sprint 1 | ADR-009 |
-| 7 | 임베딩 모델/차원 (pgvector) | Sprint 5 전 | ADR-007 |
-| 8 | Inngest step 과금이 workflow 설계에 주는 제약 (step 병합 기준) | Sprint 3 | ADR-002 조건 |
+| #   | 이슈                                                            | 결정 시한       | 비고                                |
+| --- | --------------------------------------------------------------- | --------------- | ----------------------------------- |
+| 1   | Inngest vs Trigger.dev v4 실측 (Proof 4 시나리오)               | Sprint 2        | ADR-002. Restate 제외 확정          |
+| 2   | Gmail 포워딩 주소 방식 프로토타입 (CASA 완전 우회 경로)         | Phase 1 중      | 트랙 G 대안                         |
+| 3   | usage 데이터 소스 — 자체 이벤트 수집은 must-not-build 저촉 소지 | Phase 1 중      | Stripe metering / PostHog 연동 검토 |
+| 4   | LLM judge 신뢰도 기준 절차 (사람 채점 50건 대조)                | Sprint 3        | ADR-006                             |
+| 5   | 가격 $99 가설의 지불의사 검증 방법 (알파 고객 인터뷰 설계)      | Phase 1 종료 시 | §29                                 |
+| 6   | Supabase RLS + Drizzle 이중 가드의 성능 오버헤드 실측           | Sprint 1        | ADR-009                             |
+| 7   | 임베딩 모델/차원 (pgvector)                                     | Sprint 5 전     | ADR-007                             |
+| 8   | Inngest step 과금이 workflow 설계에 주는 제약 (step 병합 기준)  | Sprint 3        | ADR-002 조건                        |
 
 ---
 

@@ -20,18 +20,18 @@ Observe → Understand → Decide → Act → Verify → Learn
 
 포지셔닝: "Build your AI workforce"(경쟁사)가 아니라 **"Connect your company."**
 
-장기 비전: *Start a company. Install the operating system.*
+장기 비전: _Start a company. Install the operating system._
 
 ---
 
 ## Documents
 
-| 문서 | 내용 | 상태 |
-|---|---|---|
-| **[docs/02-SPEC-v0.6.md](./docs/02-SPEC-v0.6.md)** | **통합 상세 기획서 v0.6** — 적대적 검증(독립 리서치 4건) 반영. 제품·시장·아키텍처·사업성·ADR 재검토·로드맵 단일 문서 | **현행 canonical** |
-| [docs/00-MASTER-SPEC.md](./docs/00-MASTER-SPEC.md) | Master Product & Technical Specification v0.5 (54 sections) | v0.6에 통합됨 (원본 보존) |
-| [docs/01-DEVELOPMENT-SPEC.md](./docs/01-DEVELOPMENT-SPEC.md) | 상세 개발 기획서 v0.1 — DB 스키마·API·화면·스프린트 상세 | v0.6에 요약 통합 (상세 참조용) |
-| [docs/adr/](./docs/adr/) | Technology Decision Records 12건 (Proposed) — v0.6 §30에 재검토 판정 기록 | Proposed |
+| 문서                                                         | 내용                                                                                                                 | 상태                           |
+| ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------- | ------------------------------ |
+| **[docs/02-SPEC-v0.6.md](./docs/02-SPEC-v0.6.md)**           | **통합 상세 기획서 v0.6** — 적대적 검증(독립 리서치 4건) 반영. 제품·시장·아키텍처·사업성·ADR 재검토·로드맵 단일 문서 | **현행 canonical**             |
+| [docs/00-MASTER-SPEC.md](./docs/00-MASTER-SPEC.md)           | Master Product & Technical Specification v0.5 (54 sections)                                                          | v0.6에 통합됨 (원본 보존)      |
+| [docs/01-DEVELOPMENT-SPEC.md](./docs/01-DEVELOPMENT-SPEC.md) | 상세 개발 기획서 v0.1 — DB 스키마·API·화면·스프린트 상세                                                             | v0.6에 요약 통합 (상세 참조용) |
+| [docs/adr/](./docs/adr/)                                     | Technology Decision Records 12건 (Proposed) — v0.6 §30에 재검토 판정 기록                                            | Proposed                       |
 
 ## v0.7 계획 (Architecture Freeze)
 

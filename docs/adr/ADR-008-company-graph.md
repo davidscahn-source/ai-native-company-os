@@ -18,12 +18,12 @@
 
 ## 3. Candidates
 
-| 후보 | 요약 |
-|---|---|
-| A. Postgres 테이블 (entities/relationships/events/source_links) + recursive CTE | §44 기본안 |
-| B. Neo4j (Aura) | 전용 property graph |
-| C. Apache AGE | Postgres 확장으로 Cypher |
-| D. 임베디드 graph lib (메모리 로드) | 소규모 그래프를 앱에서 순회 |
+| 후보                                                                            | 요약                        |
+| ------------------------------------------------------------------------------- | --------------------------- |
+| A. Postgres 테이블 (entities/relationships/events/source_links) + recursive CTE | §44 기본안                  |
+| B. Neo4j (Aura)                                                                 | 전용 property graph         |
+| C. Apache AGE                                                                   | Postgres 확장으로 Cypher    |
+| D. 임베디드 graph lib (메모리 로드)                                             | 소규모 그래프를 앱에서 순회 |
 
 ## 4. Benchmark
 

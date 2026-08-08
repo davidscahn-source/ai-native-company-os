@@ -18,12 +18,12 @@ Company Knowledge(§23 — 문서, 이메일, Slack, 정책)와 memories(§22)�
 
 ## 3. Candidates
 
-| 후보 | 요약 |
-|---|---|
-| A. pgvector (기존 Postgres) | documents/document_chunks/memories에 vector 컬럼 |
-| B. Qdrant (managed) | 전용 vector DB |
-| C. Pinecone | 전용 vector SaaS |
-| D. Turbopuffer 등 저비용 신흥 | object-storage 기반 |
+| 후보                          | 요약                                             |
+| ----------------------------- | ------------------------------------------------ |
+| A. pgvector (기존 Postgres)   | documents/document_chunks/memories에 vector 컬럼 |
+| B. Qdrant (managed)           | 전용 vector DB                                   |
+| C. Pinecone                   | 전용 vector SaaS                                 |
+| D. Turbopuffer 등 저비용 신흥 | object-storage 기반                              |
 
 ## 4. Benchmark
 

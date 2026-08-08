@@ -17,12 +17,12 @@ Agent 실행 trace(§24), 비용 추적, connector health, 시스템 로그를 �
 
 ## 3. Candidates
 
-| 후보 | 요약 |
-|---|---|
-| A. 자체 traces 테이블 (Postgres) + 자체 뷰어 | 개발기획서 §6.3 스키마 |
-| B. Langfuse (self-host 가능) | LLM trace 특화, 오픈소스 |
-| C. Braintrust / LangSmith | trace + eval SaaS |
-| D. 순수 OTel + Grafana/Tempo | 범용 스택 |
+| 후보                                         | 요약                     |
+| -------------------------------------------- | ------------------------ |
+| A. 자체 traces 테이블 (Postgres) + 자체 뷰어 | 개발기획서 §6.3 스키마   |
+| B. Langfuse (self-host 가능)                 | LLM trace 특화, 오픈소스 |
+| C. Braintrust / LangSmith                    | trace + eval SaaS        |
+| D. 순수 OTel + Grafana/Tempo                 | 범용 스택                |
 
 ## 4. Benchmark
 

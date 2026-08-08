@@ -6,24 +6,27 @@
 
 ## §1. 확장 6단계
 
-| 단계 | 내용 | v0.6과의 관계 |
-|---|---|---|
-| 1. Founder OS | 연결 → 오늘 봐야 할 것 (MVP) | = v0.6 Phase 0~1 |
-| 2. AI COO | Monitor → Recommend → Prepare → Execute | = autonomy level 0~4 (§16) — 이미 설계됨 |
-| 3. AI Workforce | 역할별 agent 확장. 차별점: **같은 Company Graph/State 공유** | = Phase 2 agents. governance layer가 우리 OS |
-| 4. Company App Store | Pack 설치 (agents + connectors + policies + benchmarks + workflows) | = v0.6 Phase 3 Company Packs |
-| 5. Company-in-a-Box | 회사 유형 선택 → 운영 인프라 자동 구성 | = Company Template. "Start a company. Install the OS." |
-| 6. Autonomous Company Infra | 사람 3명 + agent 20~50개. 사람은 목표·자본배분·핵심 결정·관계 | 장기 비전 |
+| 단계                        | 내용                                                                | v0.6과의 관계                                          |
+| --------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------ |
+| 1. Founder OS               | 연결 → 오늘 봐야 할 것 (MVP)                                        | = v0.6 Phase 0~1                                       |
+| 2. AI COO                   | Monitor → Recommend → Prepare → Execute                             | = autonomy level 0~4 (§16) — 이미 설계됨               |
+| 3. AI Workforce             | 역할별 agent 확장. 차별점: **같은 Company Graph/State 공유**        | = Phase 2 agents. governance layer가 우리 OS           |
+| 4. Company App Store        | Pack 설치 (agents + connectors + policies + benchmarks + workflows) | = v0.6 Phase 3 Company Packs                           |
+| 5. Company-in-a-Box         | 회사 유형 선택 → 운영 인프라 자동 구성                              | = Company Template. "Start a company. Install the OS." |
+| 6. Autonomous Company Infra | 사람 3명 + agent 20~50개. 사람은 목표·자본배분·핵심 결정·관계       | 장기 비전                                              |
 
 ## §2. 신규 확장 축 3개 (v0.6에 없던 것)
 
 ### 2.1 B2B Agent Network
+
 회사 A의 OS ↔ 회사 B의 OS가 agent-to-agent로 재고·가격·계약조건·invoice를 협상하고 사람은 최종 승인만. 현재 원칙과의 관계: **zero cross-tenant 격리의 완화가 아니라, 명시적 policy가 걸린 별도 채널**로 설계될 것. 기존 agent identity + policy + approval + audit가 그대로 그 채널의 governance 기반.
 
 ### 2.2 Financial Layer
+
 Graph에 쌓이는 revenue/payment/contract/churn 이력 → 회사 건강상태의 실시간 파악 → working capital, invoice financing, insurance, corporate card. Stripe의 payments→financial infra 경로와 유사. **유보**: 규제·라이선스 영역 + 운영 데이터의 underwriting 사용은 신뢰 포지셔닝 이슈. 지금의 함의는 "audit/evidence 규율을 은행 수준으로" — 이미 하는 일의 정당화.
 
 ### 2.3 AI Agent Governance Platform (IAM for non-human identity)
+
 Agent가 많아질수록 "이 AI가 어디에 접근 가능한가"가 새 IAM 문제. 우리 Policy/Audit/Approval/Agent Identity 레이어 자체가 별도 제품이 될 수 있음. 함의: policy/audit 모듈의 깨끗한 분리 유지 (이미 설계 원칙).
 
 ## §3. 사업 규모 사다리

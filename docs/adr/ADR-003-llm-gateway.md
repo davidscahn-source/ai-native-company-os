@@ -19,12 +19,12 @@
 
 ## 3. Candidates
 
-| 후보 | 요약 |
-|---|---|
+| 후보                                             | 요약                                            |
+| ------------------------------------------------ | ----------------------------------------------- |
 | A. 자체 thin gateway (Anthropic/OpenAI SDK 직접) | `packages/llm` — profile 매핑 + fallback + 계측 |
-| B. LiteLLM (proxy self-host) | 100+ 프로바이더 통일 API, 비용 추적 내장 |
-| C. OpenRouter | managed 멀티모델 API |
-| D. Portkey / Helicone | gateway + observability SaaS |
+| B. LiteLLM (proxy self-host)                     | 100+ 프로바이더 통일 API, 비용 추적 내장        |
+| C. OpenRouter                                    | managed 멀티모델 API                            |
+| D. Portkey / Helicone                            | gateway + observability SaaS                    |
 
 ## 4. Benchmark
 

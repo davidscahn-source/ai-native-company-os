@@ -17,12 +17,12 @@
 
 ## 3. Candidates
 
-| 후보 | 요약 |
-|---|---|
-| A. Inngest | 이벤트 기반 durable functions, serverless 친화, managed |
-| B. Temporal (Cloud) | 업계 표준 durable execution, 표현력 최강 |
-| C. Restate | 신흥 durable execution, 경량 |
-| D. 자체 (pg-boss + state machine) | Postgres 큐 + 수동 상태 관리 |
+| 후보                              | 요약                                                    |
+| --------------------------------- | ------------------------------------------------------- |
+| A. Inngest                        | 이벤트 기반 durable functions, serverless 친화, managed |
+| B. Temporal (Cloud)               | 업계 표준 durable execution, 표현력 최강                |
+| C. Restate                        | 신흥 durable execution, 경량                            |
+| D. 자체 (pg-boss + state machine) | Postgres 큐 + 수동 상태 관리                            |
 
 ## 4. Benchmark
 

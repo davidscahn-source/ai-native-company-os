@@ -17,12 +17,12 @@ web(UI/API), worker(sync/agent/workflow), DB의 호스팅 구성. 그리고 §16
 
 ## 3. Candidates
 
-| 후보 | 요약 |
-|---|---|
-| A. Vercel (web) + Railway (worker) + Supabase (DB) | 현 팀 경험 스택 |
-| B. Vercel + Fly.io (worker) | Fly가 region 제어 우수 |
-| C. AWS 올인 (ECS/Fargate + RDS) | 단일 클라우드, enterprise 대비 |
-| D. 단일 VPS (Hetzner 등) + Docker Compose | 최저 비용 |
+| 후보                                               | 요약                           |
+| -------------------------------------------------- | ------------------------------ |
+| A. Vercel (web) + Railway (worker) + Supabase (DB) | 현 팀 경험 스택                |
+| B. Vercel + Fly.io (worker)                        | Fly가 region 제어 우수         |
+| C. AWS 올인 (ECS/Fargate + RDS)                    | 단일 클라우드, enterprise 대비 |
+| D. 단일 VPS (Hetzner 등) + Docker Compose          | 최저 비용                      |
 
 ## 4. Benchmark
 

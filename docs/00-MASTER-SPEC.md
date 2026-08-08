@@ -2,10 +2,10 @@
 
 ## Master Product & Technical Specification v0.5
 
-| | |
-|---|---|
-| **Working Category** | AI-Native Company Operating System |
-| **Working Promise** | Connect your company. AI operates the rest. |
+|                      |                                                |
+| -------------------- | ---------------------------------------------- |
+| **Working Category** | AI-Native Company Operating System             |
+| **Working Promise**  | Connect your company. AI operates the rest.    |
 | **Long-Term Vision** | Start a company. Install the operating system. |
 
 ---
@@ -175,16 +175,16 @@ Examples:
 
 기본 entity:
 
-| | | | |
-|---|---|---|---|
-| Company | User | Employee | Customer |
-| Contact | Lead | Contract | Subscription |
-| Invoice | Payment | Product | Feature |
-| Usage | Ticket | Bug | Incident |
-| Repository | Commit | Pull Request | Deployment |
-| Service | Vendor | Expense | Task |
-| Decision | Communication | Document | Integration |
-| Agent | Action | Workflow | Event |
+|            |               |              |              |
+| ---------- | ------------- | ------------ | ------------ |
+| Company    | User          | Employee     | Customer     |
+| Contact    | Lead          | Contract     | Subscription |
+| Invoice    | Payment       | Product      | Feature      |
+| Usage      | Ticket        | Bug          | Incident     |
+| Repository | Commit        | Pull Request | Deployment   |
+| Service    | Vendor        | Expense      | Task         |
+| Decision   | Communication | Document     | Integration  |
+| Agent      | Action        | Workflow     | Event        |
 
 ### Example relationship
 
@@ -516,13 +516,13 @@ Invoice failure 발생
 
 모든 action에는 risk classification이 있어야 한다.
 
-| Risk | 정의 | 예 | 기본 정책 |
-|---|---|---|---|
-| **Risk 0** | Read only | — | 자동 허용 |
-| **Risk 1** | Low-impact write | Create internal task | 가능한 자동 허용 |
-| **Risk 2** | External communication | Send customer email | 기본 approval |
-| **Risk 3** | Financial / permission / production modification | Refund, Change customer plan, Deploy production | 기본 mandatory approval |
-| **Risk 4** | Irreversible / highly sensitive | — | 항상 human approval + reauthentication |
+| Risk       | 정의                                             | 예                                              | 기본 정책                              |
+| ---------- | ------------------------------------------------ | ----------------------------------------------- | -------------------------------------- |
+| **Risk 0** | Read only                                        | —                                               | 자동 허용                              |
+| **Risk 1** | Low-impact write                                 | Create internal task                            | 가능한 자동 허용                       |
+| **Risk 2** | External communication                           | Send customer email                             | 기본 approval                          |
+| **Risk 3** | Financial / permission / production modification | Refund, Change customer plan, Deploy production | 기본 mandatory approval                |
+| **Risk 4** | Irreversible / highly sensitive                  | —                                               | 항상 human approval + reauthentication |
 
 ---
 
@@ -530,13 +530,13 @@ Invoice failure 발생
 
 회사별 / Agent별 설정.
 
-| Level | 의미 |
-|---|---|
-| 0 | Observe |
-| 1 | Recommend |
-| 2 | Prepare |
-| 3 | Execute with approval |
-| 4 | Autonomous within policy |
+| Level | 의미                     |
+| ----- | ------------------------ |
+| 0     | Observe                  |
+| 1     | Recommend                |
+| 2     | Prepare                  |
+| 3     | Execute with approval    |
+| 4     | Autonomous within policy |
 
 **MVP default: Level 1~2.**
 
@@ -589,12 +589,12 @@ Policy decision
 
 Memory를 4종류로 구분한다.
 
-| 종류 | 내용 |
-|---|---|
-| **Working Memory** | 현재 작업 |
-| **Entity Memory** | 특정 customer / contract / incident |
-| **Company Memory** | 회사 정책, 업무 방식, 주요 결정 |
-| **Agent Experience** | agent 성공/실패 기록 |
+| 종류                 | 내용                                |
+| -------------------- | ----------------------------------- |
+| **Working Memory**   | 현재 작업                           |
+| **Entity Memory**    | 특정 customer / contract / incident |
+| **Company Memory**   | 회사 정책, 업무 방식, 주요 결정     |
+| **Agent Experience** | agent 성공/실패 기록                |
 
 Agent Experience는 바로 production instruction이 되지 않는다.
 
@@ -783,13 +783,13 @@ Improvement Agent가:
 
 예 — **SaaS Startup Pack**:
 
-| 구성 | 내용 |
-|---|---|
-| Agents | Founder, Revenue, Customer, Engineering, Support |
+| 구성         | 내용                                                 |
+| ------------ | ---------------------------------------------------- |
+| Agents       | Founder, Revenue, Customer, Engineering, Support     |
 | Integrations | Stripe, GitHub, Slack, Gmail, Sentry, Linear, Vercel |
-| Policies | 30 |
-| Benchmarks | 50 |
-| Workflows | 20 |
+| Policies     | 30                                                   |
+| Benchmarks   | 50                                                   |
+| Workflows    | 20                                                   |
 
 사용자:
 
@@ -799,12 +799,12 @@ Improvement Agent가:
 
 ## 33. Pre-Built Compute Profile
 
-| Profile | 내용 |
-|---|---|
+| Profile        | 내용                                                            |
+| -------------- | --------------------------------------------------------------- |
 | **Starter AI** | Managed APIs, Automatic routing, Shared compute, Cost optimized |
-| **Scale AI** | High reasoning, Failover, Priority inference |
-| **Private AI** | Dedicated inference, Private network, Data residency |
-| **Local AI** | Customer controlled inference |
+| **Scale AI**   | High reasoning, Failover, Priority inference                    |
+| **Private AI** | Dedicated inference, Private network, Data residency            |
+| **Local AI**   | Customer controlled inference                                   |
 
 ---
 
@@ -862,11 +862,11 @@ Improvement Agent가:
 
 **MVP core workflows:**
 
-| Workflow | 내용 |
-|---|---|
-| Founder Morning Brief | 오늘 가장 중요한 것 |
-| Revenue Risk | 실패한 결제와 revenue risk |
-| Customer Risk | 이탈 가능성 |
+| Workflow              | 내용                                    |
+| --------------------- | --------------------------------------- |
+| Founder Morning Brief | 오늘 가장 중요한 것                     |
+| Revenue Risk          | 실패한 결제와 revenue risk              |
+| Customer Risk         | 이탈 가능성                             |
 | Incident Intelligence | 장애 → 고객 영향 → 코드/deployment 연결 |
 
 ---
@@ -1010,11 +1010,11 @@ Example — Email에:
 
 AI의 inference와 database fact를 구분한다.
 
-| 구분 | 예 |
-|---|---|
-| **FACT** | Payment failed |
-| **INFERENCE** | Customer may churn (Confidence 0.73) |
-| **RECOMMENDATION** | Recommended contact |
+| 구분               | 예                                   |
+| ------------------ | ------------------------------------ |
+| **FACT**           | Payment failed                       |
+| **INFERENCE**      | Customer may churn (Confidence 0.73) |
+| **RECOMMENDATION** | Recommended contact                  |
 
 UI에서도 세 가지를 구분한다.
 
@@ -1071,19 +1071,19 @@ Graph complexity가 실제 임계점을 넘으면 전문 graph infrastructure를
 
 필수 ADR:
 
-| ADR | 주제 |
-|---|---|
-| ADR-001 | Connector Layer |
-| ADR-002 | Workflow Runtime |
-| ADR-003 | LLM Gateway |
-| ADR-004 | Agent Runtime |
-| ADR-005 | Observability |
-| ADR-006 | Evaluation |
-| ADR-007 | Knowledge Store |
-| ADR-008 | Company Graph |
-| ADR-009 | Auth / Tenant |
-| ADR-010 | Secret Management |
-| ADR-011 | Compute |
+| ADR     | 주제                          |
+| ------- | ----------------------------- |
+| ADR-001 | Connector Layer               |
+| ADR-002 | Workflow Runtime              |
+| ADR-003 | LLM Gateway                   |
+| ADR-004 | Agent Runtime                 |
+| ADR-005 | Observability                 |
+| ADR-006 | Evaluation                    |
+| ADR-007 | Knowledge Store               |
+| ADR-008 | Company Graph                 |
+| ADR-009 | Auth / Tenant                 |
+| ADR-010 | Secret Management             |
+| ADR-011 | Compute                       |
 | ADR-012 | Self-Improvement Architecture |
 
 ---
@@ -1109,14 +1109,14 @@ Graph complexity가 실제 임계점을 넘으면 전문 graph infrastructure를
 
 코드를 많이 만들기 전에 검증.
 
-| Proof | 내용 |
-|---|---|
-| Proof 1 | Stripe + GitHub 연결 |
+| Proof   | 내용                                               |
+| ------- | -------------------------------------------------- |
+| Proof 1 | Stripe + GitHub 연결                               |
 | Proof 2 | 하나의 customer를 payment → support → issue와 연결 |
-| Proof 3 | AI가 evidence 기반 Founder Brief 생성 |
-| Proof 4 | AI recommendation → approval → safe action |
-| Proof 5 | execution trace 저장 |
-| Proof 6 | 같은 task를 두 harness로 실행하고 benchmark 비교 |
+| Proof 3 | AI가 evidence 기반 Founder Brief 생성              |
+| Proof 4 | AI recommendation → approval → safe action         |
+| Proof 5 | execution trace 저장                               |
+| Proof 6 | 같은 task를 두 harness로 실행하고 benchmark 비교   |
 
 ---
 

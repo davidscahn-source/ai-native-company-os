@@ -18,11 +18,11 @@
 
 ## 3. Candidates
 
-| 후보 | 요약 |
-|---|---|
+| 후보                                                              | 요약                                               |
+| ----------------------------------------------------------------- | -------------------------------------------------- |
 | A. Offline Improvement Lab (별도 환경 + 사람 최종 승인 promotion) | 배치 분석 → 후보 생성 → benchmark → 사람이 promote |
-| B. Online 자동 최적화 (production 내 A/B + 자동 promotion) | shadow 트래픽 자동 실험 |
-| C. 수동 개선만 (Lab 없음) | 사람이 trace 보고 직접 harness 수정 |
+| B. Online 자동 최적화 (production 내 A/B + 자동 promotion)        | shadow 트래픽 자동 실험                            |
+| C. 수동 개선만 (Lab 없음)                                         | 사람이 trace 보고 직접 harness 수정                |
 
 ## 4. Benchmark
 

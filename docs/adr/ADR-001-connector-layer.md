@@ -18,13 +18,13 @@ MVP 커넥터 5종(Stripe, GitHub, Gmail, Slack, Sentry)의 연결·인증·back
 
 ## 3. Candidates
 
-| 후보 | 요약 |
-|---|---|
-| A. 자체 직접 구현 (provider 공식 SDK) | Connector interface + 5개 직접 구현 |
-| B. Nango | OAuth/sync 인프라 오픈소스, self-host 가능 |
-| C. Composio | agent-tool 특화, tool 카탈로그 큼 |
-| D. Pipedream Connect | 커넥터 수천 개, 실행 인프라 포함 |
-| E. Merge.dev | unified API — 카테고리 한정, 고가 |
+| 후보                                  | 요약                                       |
+| ------------------------------------- | ------------------------------------------ |
+| A. 자체 직접 구현 (provider 공식 SDK) | Connector interface + 5개 직접 구현        |
+| B. Nango                              | OAuth/sync 인프라 오픈소스, self-host 가능 |
+| C. Composio                           | agent-tool 특화, tool 카탈로그 큼          |
+| D. Pipedream Connect                  | 커넥터 수천 개, 실행 인프라 포함           |
+| E. Merge.dev                          | unified API — 카테고리 한정, 고가          |
 
 ## 4. Benchmark
 

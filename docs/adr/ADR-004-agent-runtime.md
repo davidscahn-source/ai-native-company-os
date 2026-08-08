@@ -18,12 +18,12 @@ AgentDefinition(§12) 기반 실행 루프 — context assembly, tool call, poli
 
 ## 3. Candidates
 
-| 후보 | 요약 |
-|---|---|
-| A. 자체 실행 루프 (LLM Gateway 위에 직접) | 명시적 루프 + 훅 |
-| B. LangGraph (JS) | 그래프 기반 orchestration, 생태계 큼 |
-| C. Claude Agent SDK | Anthropic 공식, 루프/tool 관리 내장 |
-| D. Mastra 등 신흥 TS 프레임워크 | TS-native agent 프레임워크 |
+| 후보                                      | 요약                                 |
+| ----------------------------------------- | ------------------------------------ |
+| A. 자체 실행 루프 (LLM Gateway 위에 직접) | 명시적 루프 + 훅                     |
+| B. LangGraph (JS)                         | 그래프 기반 orchestration, 생태계 큼 |
+| C. Claude Agent SDK                       | Anthropic 공식, 루프/tool 관리 내장  |
+| D. Mastra 등 신흥 TS 프레임워크           | TS-native agent 프레임워크           |
 
 ## 4. Benchmark
 

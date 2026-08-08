@@ -18,12 +18,12 @@
 
 ## 3. Candidates
 
-| 후보 | 요약 |
-|---|---|
-| A. Supabase Auth + Postgres RLS | DB와 통합, RLS 네이티브 |
-| B. Clerk | DX 최상, 멀티테넌시(Organizations) 내장 |
-| C. Auth0 / WorkOS | 엔터프라이즈 기능 (SSO/SCIM) 강점 |
-| D. 자체 (Lucia 등 라이브러리) | 완전 제어 |
+| 후보                            | 요약                                    |
+| ------------------------------- | --------------------------------------- |
+| A. Supabase Auth + Postgres RLS | DB와 통합, RLS 네이티브                 |
+| B. Clerk                        | DX 최상, 멀티테넌시(Organizations) 내장 |
+| C. Auth0 / WorkOS               | 엔터프라이즈 기능 (SSO/SCIM) 강점       |
+| D. 자체 (Lucia 등 라이브러리)   | 완전 제어                               |
 
 ## 4. Benchmark
 

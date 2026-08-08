@@ -18,12 +18,12 @@ tenant별 connector credential(API key, OAuth token, webhook secret)의 저장·
 
 ## 3. Candidates
 
-| 후보 | 요약 |
-|---|---|
+| 후보                                                              | 요약                                       |
+| ----------------------------------------------------------------- | ------------------------------------------ |
 | A. 앱 레벨 envelope encryption (AES-256-GCM) + cloud KMS root key | credentials_encrypted 컬럼, DEK per tenant |
-| B. HashiCorp Vault (self-host / HCP) | 업계 표준 시크릿 엔진 |
-| C. Infisical / Doppler | 시크릿 관리 SaaS |
-| D. Supabase Vault | pgsodium 기반 DB 내 암호화 |
+| B. HashiCorp Vault (self-host / HCP)                              | 업계 표준 시크릿 엔진                      |
+| C. Infisical / Doppler                                            | 시크릿 관리 SaaS                           |
+| D. Supabase Vault                                                 | pgsodium 기반 DB 내 암호화                 |
 
 ## 4. Benchmark
 
