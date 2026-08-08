@@ -10,3 +10,5 @@ export {
 } from "./repo.js";
 export type { EntityDraft, CanonicalEventRow, RelationshipInput } from "./repo.js";
 export { encryptCredential, decryptCredential } from "./crypto.js";
+export { assertCredentialAllowed, currentDataPhase, ProductionDataRefused } from "./data-policy.js";
+export type { DataPhase } from "./data-policy.js";

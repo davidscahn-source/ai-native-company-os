@@ -925,7 +925,7 @@ POST   /relationships/:id/confirm | /reject
 - Stripe connector: connect(키 등록) + backfill + webhook 수신 → raw_events
 - GitHub connector: App 설치 + backfill
 - Stripe/GitHub normalizer + fixture 테스트
-- ✅ **Proof 1**: 실계정 Stripe+GitHub 연결, entity 생성 확인
+- ✅ **Proof 1**: Stripe test-mode + 격리된 테스트 repo 연결, entity 생성 확인
 
 **Sprint 2 — Graph + Proof 2, 5**
 
@@ -978,16 +978,16 @@ POST   /relationships/:id/confirm | /reject
 
 기능별 "완료"의 정의:
 
-| 기능              | 완료 기준                                                                                                                        |
-| ----------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| Connector         | 실계정 연결 성공, backfill 완주, webhook 수신→event 생성 e2e 테스트, 서명 검증 테스트, credential 암호화 확인, health check 동작 |
-| Normalizer        | provider fixture ≥ 10종 스냅샷 테스트, idempotent upsert 검증                                                                    |
-| Entity resolution | 채점 데이터셋 100건 정확도 ≥ 90%, 오연결 시 confirm/reject로 수정 가능                                                           |
-| Agent 실행        | trace 완전성 (context/모델/tool/비용 전부), budget 초과 시 중단, evidence 하드 가드 동작                                         |
-| Action            | risk 2+ 승인 없이 실행되는 경로 0 (테스트로 증명), 모든 전이 audit 기록                                                          |
-| Policy            | system policy 위반 시도 100% 차단 테스트, execute-time re-check 테스트                                                           |
-| Tenant isolation  | cross-tenant 접근 테스트 suite green (RLS + 앱 레벨 이중)                                                                        |
-| Brief             | 24h 데이터로 생성, critical evidence 100%, 생성 실패 시 escalation                                                               |
+| 기능              | 완료 기준                                                                                                                                            |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Connector         | provider sandbox/test-mode 연결 성공, backfill 완주, webhook 수신→event 생성 e2e 테스트, 서명 검증 테스트, credential 암호화 확인, health check 동작 |
+| Normalizer        | provider fixture ≥ 10종 스냅샷 테스트, idempotent upsert 검증                                                                                        |
+| Entity resolution | 채점 데이터셋 100건 정확도 ≥ 90%, 오연결 시 confirm/reject로 수정 가능                                                                               |
+| Agent 실행        | trace 완전성 (context/모델/tool/비용 전부), budget 초과 시 중단, evidence 하드 가드 동작                                                             |
+| Action            | risk 2+ 승인 없이 실행되는 경로 0 (테스트로 증명), 모든 전이 audit 기록                                                                              |
+| Policy            | system policy 위반 시도 100% 차단 테스트, execute-time re-check 테스트                                                                               |
+| Tenant isolation  | cross-tenant 접근 테스트 suite green (RLS + 앱 레벨 이중)                                                                                            |
+| Brief             | 24h 데이터로 생성, critical evidence 100%, 생성 실패 시 escalation                                                                                   |
 
 ---
 

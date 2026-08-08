@@ -33,7 +33,9 @@ benchmarks, security checks, or measurable evidence.
 - **Data safety:** synthetic fixtures / sandbox APIs / provider test
   environments / controlled dogfood only, until an explicit data-readiness
   and security gate approves production data. Challenge casual proposals to
-  use real company data.
+  use real company data — **including my own**. The phase model, the Phase 2
+  gate checklist, and the code-level enforcement live in
+  `docs/DATA-READINESS.md`, which wins over any spec or milestone text.
 - **Failure is information:** truthful FAILED/UNKNOWN beats artificial PASS.
   Never hide failed benchmarks, known gaps, regressions, or cost increases.
 

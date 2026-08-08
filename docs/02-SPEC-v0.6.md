@@ -637,7 +637,7 @@ llm.call({ tenantId, runId, traceRef,
 - **공용 Sync Harness v1** (서명 검증·dedup·cursor·재시도)
 - Stripe + GitHub connector (harness 위에 normalizer만)
 - LLM Gateway thin v1 — **비용 이벤트 포함** (ADR-003 확정)
-- ✅ Proof 1: 실계정 Stripe+GitHub 연결, entity 생성
+- ✅ Proof 1: Stripe test-mode + 격리된 테스트 repo 연결, entity 생성
 
 **Sprint 2 — Graph + Proof 2, 5**
 
@@ -685,16 +685,16 @@ llm.call({ tenantId, runId, traceRef,
 
 **품질 (v0.6 구체화):**
 
-| 항목              | 기준                                                                                 |
-| ----------------- | ------------------------------------------------------------------------------------ |
-| Entity resolution | **precision ≥ 95%, coverage ≥ 85%** (golden set 100건, 주 1회 채점 — §11.3)          |
-| Evidence          | critical insight의 evidence 100% (하드 가드로 렌더 차단)                             |
-| "모른다"          | answerability 오분류(답 못할 것을 답함) — 알파 기간 표본 검사에서 0 목표             |
-| Audit             | write action audit 기록 100%                                                         |
-| Isolation         | cross-tenant leakage 0 (침투 테스트 suite green)                                     |
-| Policy            | critical action policy gate 100%, 우회 경로 0 (테스트로 증명)                        |
-| **비용 (신규)**   | 활성 tenant당 LLM COGS 실측 → 최적화 1차 후 **$20/월 이하** (목표 $8~15)             |
-| Connector         | 실계정 e2e (backfill 완주 + webhook→event), 서명 검증 테스트, credential 암호화 확인 |
+| 항목              | 기준                                                                                            |
+| ----------------- | ----------------------------------------------------------------------------------------------- |
+| Entity resolution | **precision ≥ 95%, coverage ≥ 85%** (golden set 100건, 주 1회 채점 — §11.3)                     |
+| Evidence          | critical insight의 evidence 100% (하드 가드로 렌더 차단)                                        |
+| "모른다"          | answerability 오분류(답 못할 것을 답함) — 알파 기간 표본 검사에서 0 목표                        |
+| Audit             | write action audit 기록 100%                                                                    |
+| Isolation         | cross-tenant leakage 0 (침투 테스트 suite green)                                                |
+| Policy            | critical action policy gate 100%, 우회 경로 0 (테스트로 증명)                                   |
+| **비용 (신규)**   | 활성 tenant당 LLM COGS 실측 → 최적화 1차 후 **$20/월 이하** (목표 $8~15)                        |
+| Connector         | sandbox/test-mode e2e (backfill 완주 + webhook→event), 서명 검증 테스트, credential 암호화 확인 |
 
 **MVP Must-Not-Build** (v0.5 유지): Full CRM, 회계, payroll, 완전한 계약/프로젝트 관리, 자체 email 클라이언트/Slack/observability 백엔드/vector DB, 수백 개 자체 커넥터, 자체 foundation LLM.
 
