@@ -10,7 +10,7 @@
 - [x] PR 템플릿 + 리뷰 게이트 정의 (SOP §4)
 - [x] CLAUDE.md + SessionStart hook (모든 미래 세션 자동 세팅)
 - [x] 거버넌스 문서: NORTH-STAR / SOP / MILESTONES
-- [ ] GitHub tracking issues 생성 (M1~~M3 + Proof 1~~6)
+- [x] GitHub tracking issues 생성 (#1 #2 #3, Owner 준비물 #4)
 - [ ] Owner 준비물: Stripe 테스트 키, GitHub App, Supabase 프로젝트, Anthropic 키 + 월 지출 상한
 
 ## M1 — Sprint 1: LLM 없는 뼈대 (목표: M0 + 1주)
