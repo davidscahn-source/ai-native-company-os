@@ -57,6 +57,28 @@ importers:
         specifier: workspace:*
         version: link:../connectors
 
+  packages/intelligence:
+    dependencies:
+      "@companyos/db":
+        specifier: workspace:*
+        version: link:../db
+      "@companyos/state":
+        specifier: workspace:*
+        version: link:../state
+    devDependencies:
+      "@companyos/connectors":
+        specifier: workspace:*
+        version: link:../connectors
+      "@companyos/llm":
+        specifier: workspace:*
+        version: link:../llm
+
+  packages/llm:
+    dependencies:
+      "@companyos/db":
+        specifier: workspace:*
+        version: link:../db
+
   packages/shared: {}
 
   packages/state:

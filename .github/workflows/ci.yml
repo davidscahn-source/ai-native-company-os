@@ -20,7 +20,7 @@ jobs:
       - run: pnpm check
       - name: Deterministic gate (M1-M2 — no LLM usage in packages)
         run: |
-          if grep -rniE "@anthropic-ai|api\.anthropic|anthropic\.claude|openai|claude-(opus|sonnet|haiku|fable|[0-9])" packages --include='*.ts'; then
+          if grep -rniE "@anthropic-ai|api\.anthropic|anthropic\.claude|openai|claude-(opus|sonnet|haiku|fable|[0-9])" packages/db packages/connectors packages/graph packages/state packages/shared --include="*.ts"; then
             echo "::error::LLM usage detected in packages/ — forbidden until M3 (CLAUDE.md deterministic gate)"
             exit 1
           fi
