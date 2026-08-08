@@ -1,6 +1,6 @@
 # ADR-004: Agent Runtime
 
-- **Status:** Proposed (Sprint 2 전 확정)
+- **Status:** DEFERRED (재검토 trigger 아래 명시)
 - **Date:** 2026-08-08
 - **Deciders:** Founder
 
@@ -67,3 +67,19 @@ Agent의 실질 자산은 (1) AgentDefinition 데이터, (2) tool 레지스트�
 ## 12. Exit strategy
 
 루프 유지보수가 병목이 되면: tool 레지스트리/policy hook 인터페이스를 유지한 채 실행 코어만 프레임워크로 치환. AgentDefinition·benchmark 데이터는 그대로 유효 — 치환본을 harness 버전 하나로 취급해 Proof 6 방식으로 신구 비교 후 promotion (§30).
+
+## 재검토 Trigger (2026-08-08)
+
+지금 프레임워크(LangGraph / Claude Agent SDK / Mastra / PraisonAI 등)를 채택하지 않는다.
+현재 commodity 표면은 LlmGateway + adapter 약 200줄이며, generic agent loop·generic MCP
+client·context compaction·handoff는 **필요한 적이 없어서** 만들지 않았다. 필요하지 않았던 것을
+피하려고 프레임워크를 채택하는 것은 premature infrastructure다.
+
+다음 중 하나가 실제로 발생하면 재검토한다:
+
+- 동시 실행되는 specialized agent가 3종 이상이고 서로 handoff가 필요
+- context가 단일 호출 한계를 넘어 compaction 전략이 필요
+- MCP 서버를 다수 연결해야 하고 generic client 유지비가 유의미
+- multi-step 실행의 crash-safe 재개가 필요 (ADR-002 trigger와 중복 시 함께 결정)
+
+그 전까지 PraisonAI 등은 **adapter 뒤에서 활용 가능한 후보로 추적만** 한다.
