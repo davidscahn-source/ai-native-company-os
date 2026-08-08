@@ -125,6 +125,7 @@ export async function impactedCustomers(
      select e.id, e.display_name, min(w.depth) as distance
      from walk w
      join entities e on e.id = w.node and e.type = 'customer'
+     where w.node <> $1
      group by e.id, e.display_name
      order by distance, e.id`,
     [fromEntityId, maxDepth]
