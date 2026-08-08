@@ -99,6 +99,18 @@ importers:
 
   packages/shared: {}
 
+  packages/simulator:
+    dependencies:
+      "@companyos/connectors":
+        specifier: workspace:*
+        version: link:../connectors
+      "@companyos/db":
+        specifier: workspace:*
+        version: link:../db
+      "@companyos/state":
+        specifier: workspace:*
+        version: link:../state
+
   packages/state:
     dependencies:
       "@companyos/db":

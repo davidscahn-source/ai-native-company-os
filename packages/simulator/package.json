@@ -1,0 +1,19 @@
+{
+  "name": "@companyos/simulator",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint src test",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --hookTimeout=120000 --testTimeout=60000"
+  },
+  "dependencies": {
+    "@companyos/connectors": "workspace:*",
+    "@companyos/db": "workspace:*",
+    "@companyos/state": "workspace:*"
+  }
+}
