@@ -43,6 +43,9 @@ const PLANS = [
 
 const DAY_MS = 24 * 3600 * 1000;
 
+/** Shortest window in which every planted signal still fits inside the range. */
+const MIN_DAYS = 35;
+
 /** How far before the window customers may already exist (backfilled history). */
 const BACKFILL_DAYS = 300;
 
@@ -67,6 +70,11 @@ export function generateCompany(opts: GenerateOptions): GeneratedCompany {
 
   const endMs = new Date(endAt).getTime();
   if (Number.isNaN(endMs)) throw new Error(`invalid endAt: ${endAt}`);
+  // Signals are planted at fixed day offsets; a short window would silently
+  // push them before the start and quietly invalidate the ground truth.
+  if (!Number.isFinite(days) || days < MIN_DAYS) {
+    throw new Error(`days must be >= ${MIN_DAYS} for the planted signals to fit, got ${days}`);
+  }
   const startMs = endMs - days * DAY_MS;
   /** Day 0 = start of the window; fractional days allowed. */
   const at = (day: number): string => new Date(startMs + day * DAY_MS).toISOString();
@@ -94,12 +102,21 @@ export function generateCompany(opts: GenerateOptions): GeneratedCompany {
   for (let i = 0; i < vol.customers; i++) {
     const id = `cus_${seed}_${i}`;
     // Enterprise customers are rare, which is what makes one churning matter.
-    const plan = rc.chance(0.08) ? PLANS[2] : rc.chance(0.35) ? PLANS[1] : PLANS[0];
+    // Customer 0 is always an early enterprise account so the priority-1
+    // "high-value customer" truth is guaranteed, never a silent fallback to
+    // whoever happened to be first.
+    const plan =
+      i === 0 ? PLANS[2] : rc.chance(0.08) ? PLANS[2] : rc.chance(0.35) ? PLANS[1] : PLANS[0];
     // A company with 400 customers did not acquire all of them in the last 90
     // days. Most pre-date the window (backfill) and therefore carry a full
     // billing history inside it — that background density is what makes the
     // planted churn signal a real detection test instead of a freebie.
-    const createdDay = rc.chance(0.75) ? -rc.next() * BACKFILL_DAYS : rc.next() * (days - 5);
+    const createdDay =
+      i === 0
+        ? -BACKFILL_DAYS / 2
+        : rc.chance(0.75)
+          ? -rc.next() * BACKFILL_DAYS
+          : rc.next() * (days - 5);
     customers.push({ id, plan, createdDay });
     payloads.push({
       provider: "stripe",
@@ -121,48 +138,78 @@ export function generateCompany(opts: GenerateOptions): GeneratedCompany {
     });
   }
 
-  // Monthly invoices per customer; a small share fail, which is normal noise.
+  // The churn victim is chosen BEFORE billing runs, so background cycles can
+  // be suppressed for it after the planted failures. Otherwise the generator
+  // would contradict its own ground truth ("no successful payment since").
+  const victim = customers[0]!;
+  const failA = days - 21;
+  const failB = days - 13;
+
+  // Monthly invoices. A background failure is ALWAYS followed by a successful
+  // retry a few days later — which is both realistic (dunning) and what makes
+  // the planted "failed twice, then silence" pattern genuinely unique. Without
+  // this, ordinary customers reproduce the signal and the benchmark would
+  // punish a correct answer as a false positive.
   const rp = root.fork("payments");
   let invoiceNo = 0;
+  const billingEdge = (invId: string, customerId: string, paid: boolean): void => {
+    // Must mirror what the Stripe normalizer actually creates, or no declared
+    // edge will ever match a derived one.
+    relationships.push({
+      fromKey: `customer:${customerId}`,
+      toKey: `invoice:${invId}`,
+      type: paid ? "paid" : "billed_to",
+    });
+  };
+
   for (const c of customers) {
     for (let cycleDay = c.createdDay + 30; cycleDay < days - 1; cycleDay += 30) {
       // Only bill inside the observable window; earlier cycles are history we
       // do not need to replay.
       if (cycleDay < 0) continue;
-      const failed = rp.chance(0.06);
+      // After the planted failures the victim goes silent — that silence IS
+      // the signal.
+      if (c.id === victim.id && cycleDay >= failA - 1) continue;
+      // Only fail when the recovery still fits inside the window; a trailing
+      // unrecovered failure would look exactly like the planted churn signal.
+      const failed = rp.chance(0.06) && cycleDay + 2 < days - 1;
       const invId = `in_${seed}_${invoiceNo++}`;
       payloads.push({
         provider: "stripe",
         dedupKey: `evt_${invId}`,
         occurredAt: at(cycleDay),
-        payload: {
-          id: `evt_${invId}`,
-          type: failed ? "invoice.payment_failed" : "invoice.paid",
-          created: unix(cycleDay),
-          data: {
-            object: {
-              id: invId,
-              object: "invoice",
-              customer: c.id,
-              amount_due: c.plan.amount,
-              currency: "usd",
-            },
-          },
-        },
+        payload: invoicePayload(invId, c.id, c.plan.amount, !failed, unix(cycleDay)),
       });
-      relationships.push({
-        fromKey: `invoice:${invId}`,
-        toKey: `customer:${c.id}`,
-        type: "billing",
-      });
+      billingEdge(invId, c.id, !failed);
+
+      if (failed) {
+        // Dunning retry succeeds — a lone failure is normal operations, not a
+        // churn signal.
+        const retryDay = cycleDay + 2;
+        const retryId = `in_${seed}_${invoiceNo++}`;
+        payloads.push({
+          provider: "stripe",
+          dedupKey: `evt_${retryId}`,
+          occurredAt: at(retryDay),
+          payload: invoicePayload(retryId, c.id, c.plan.amount, true, unix(retryDay)),
+        });
+        billingEdge(retryId, c.id, true);
+      }
     }
   }
 
   // ── background: engineering activity ─────────────────────────────────────
   const rb = root.fork("bugs");
   let issueNo = 0;
+  const STALE_BUG_AGE = 26; // must match the planted stale bug below
   for (let i = 0; i < vol.bugs; i++) {
-    const openedDay = rb.next() * (days - 10);
+    // A background bug that never closes must still be YOUNGER than the
+    // planted stale bug, or the planted signal is not the stalest thing in
+    // the company and the ground truth lies.
+    const neverCloses = rb.chance(0.2);
+    const openedDay = neverCloses
+      ? days - STALE_BUG_AGE + 5 + rb.next() * (STALE_BUG_AGE - 7)
+      : rb.next() * (days - 10);
     const id = 900000 + seed * 100 + issueNo;
     const number = 1000 + issueNo;
     issueNo++;
@@ -181,9 +228,9 @@ export function generateCompany(opts: GenerateOptions): GeneratedCompany {
         repoName
       ),
     });
-    // Most bugs get fixed within a normal window — that is what makes a
-    // 21-day-old open bug stand out rather than blend in.
-    if (rb.chance(0.8)) {
+    // Most bugs get fixed within a normal window — that is what makes the
+    // planted 21-day-old open bug stand out rather than blend in.
+    if (!neverCloses) {
       const closedDay = openedDay + rb.next() * 6 + 0.5;
       if (closedDay < days) {
         payloads.push({
@@ -245,13 +292,6 @@ export function generateCompany(opts: GenerateOptions): GeneratedCompany {
   }
 
   // ── SIGNAL A: high-value customer, repeated failures, then silence ───────
-  const rs = root.fork("signal-a");
-  const enterprise = customers.filter(
-    (c) => c.plan.name === "enterprise" && c.createdDay < days - 40
-  );
-  const victim = enterprise.length > 0 ? rs.pick(enterprise) : customers[0]!;
-  const failA = days - 21;
-  const failB = days - 13;
   for (const [n, day] of [failA, failB].entries()) {
     const invId = `in_${seed}_churn_${n}`;
     payloads.push({
@@ -273,11 +313,7 @@ export function generateCompany(opts: GenerateOptions): GeneratedCompany {
         },
       },
     });
-    relationships.push({
-      fromKey: `invoice:${invId}`,
-      toKey: `customer:${victim.id}`,
-      type: "billing",
-    });
+    billingEdge(invId, victim.id, false);
   }
   signals.push({
     id: "signal-a-churn",
@@ -295,7 +331,7 @@ export function generateCompany(opts: GenerateOptions): GeneratedCompany {
   });
 
   // ── SIGNAL B: a bug that never got fixed ─────────────────────────────────
-  const staleDay = days - 21;
+  const staleDay = days - 26;
   const staleId = 950000 + seed;
   payloads.push({
     provider: "github",
@@ -316,7 +352,7 @@ export function generateCompany(opts: GenerateOptions): GeneratedCompany {
     id: "signal-b-stale-bug",
     kind: "stale_bug",
     priority: 2,
-    truth: `Bug #4242 has been open ${21} days with no close event, far beyond the typical resolution window.`,
+    truth: `Bug #4242 has been open 26 days with no close event, longer than any other open bug and far beyond the typical resolution window.`,
     evidenceKeys: [`issue:${staleId}`],
     observableFrom: at(staleDay + 7),
   });
@@ -332,20 +368,7 @@ export function generateCompany(opts: GenerateOptions): GeneratedCompany {
       provider: "stripe",
       dedupKey: `evt_${invId}`,
       occurredAt: at(day),
-      payload: {
-        id: `evt_${invId}`,
-        type: "invoice.payment_failed",
-        created: unix(day),
-        data: {
-          object: {
-            id: invId,
-            object: "invoice",
-            customer: decoyCustomer.id,
-            amount_due: decoyCustomer.plan.amount,
-            currency: "usd",
-          },
-        },
-      },
+      payload: invoicePayload(invId, decoyCustomer.id, decoyCustomer.plan.amount, false, unix(day)),
     });
     // ...and, minutes later, a completely unrelated bug in another area.
     const decoyIssue = 960000 + seed * 100 + i;
@@ -380,6 +403,26 @@ export function generateCompany(opts: GenerateOptions): GeneratedCompany {
         repoName
       ),
     });
+    billingEdge(invId, decoyCustomer.id, false);
+    // The decoy recovers too: the trap is the temporal coincidence with an
+    // unrelated bug, NOT a second churn pattern. Without this recovery a decoy
+    // can accumulate two unrecovered failures and become a real churn signal
+    // the ground truth never declared.
+    const decoyRetryDay = Math.min(day + 2, days - 0.5);
+    const decoyRetryId = `in_${seed}_noise_retry_${i}`;
+    payloads.push({
+      provider: "stripe",
+      dedupKey: `evt_${decoyRetryId}`,
+      occurredAt: at(decoyRetryDay),
+      payload: invoicePayload(
+        decoyRetryId,
+        decoyCustomer.id,
+        decoyCustomer.plan.amount,
+        true,
+        unix(decoyRetryDay)
+      ),
+    });
+    billingEdge(decoyRetryId, decoyCustomer.id, true);
     noise.push({
       id: `noise-${i}`,
       description:
@@ -414,6 +457,29 @@ export function generateCompany(opts: GenerateOptions): GeneratedCompany {
       signals: signals.length,
       noise: noise.length,
       nonRelationships: nonRelationships.length,
+    },
+  };
+}
+
+function invoicePayload(
+  invId: string,
+  customerId: string,
+  amount: number,
+  paid: boolean,
+  createdUnix: number
+): unknown {
+  return {
+    id: `evt_${invId}`,
+    type: paid ? "invoice.paid" : "invoice.payment_failed",
+    created: createdUnix,
+    data: {
+      object: {
+        id: invId,
+        object: "invoice",
+        customer: customerId,
+        amount_due: amount,
+        currency: "usd",
+      },
     },
   };
 }
