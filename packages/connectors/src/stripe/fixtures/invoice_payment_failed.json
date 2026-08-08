@@ -1,0 +1,14 @@
+{
+  "id": "evt_2a",
+  "type": "invoice.payment_failed",
+  "created": 1754600200,
+  "data": {
+    "object": {
+      "id": "in_100",
+      "object": "invoice",
+      "customer": "cus_A1",
+      "amount_due": 42000,
+      "currency": "usd"
+    }
+  }
+}

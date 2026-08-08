@@ -18,3 +18,9 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm format
       - run: pnpm check
+      - name: Deterministic gate (M1-M2 — no LLM usage in packages)
+        run: |
+          if grep -rniE "@anthropic-ai|api\.anthropic|openai|claude-(opus|sonnet|haiku|fable)" packages --include='*.ts'; then
+            echo "::error::LLM usage detected in packages/ — forbidden until M3 (CLAUDE.md deterministic gate)"
+            exit 1
+          fi

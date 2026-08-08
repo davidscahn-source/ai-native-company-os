@@ -1,0 +1,14 @@
+{
+  "id": "evt_2b",
+  "type": "invoice.paid",
+  "created": 1754600300,
+  "data": {
+    "object": {
+      "id": "in_101",
+      "object": "invoice",
+      "customer": "cus_A1",
+      "amount_due": 42000,
+      "currency": "usd"
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "id": "evt_1b",
+  "type": "customer.updated",
+  "created": 1754600100,
+  "data": {
+    "object": {
+      "id": "cus_A1",
+      "object": "customer",
+      "email": "alice@example.com",
+      "name": "Alice Corporation"
+    }
+  }
+}

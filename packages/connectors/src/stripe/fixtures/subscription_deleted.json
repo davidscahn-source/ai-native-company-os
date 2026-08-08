@@ -1,0 +1,13 @@
+{
+  "id": "evt_3a",
+  "type": "customer.subscription.deleted",
+  "created": 1754600400,
+  "data": {
+    "object": {
+      "id": "sub_9",
+      "object": "subscription",
+      "customer": "cus_A1",
+      "status": "canceled"
+    }
+  }
+}
