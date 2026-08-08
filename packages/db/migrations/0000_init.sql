@@ -62,6 +62,10 @@ create table entities (
 );
 create index entities_by_type on entities (tenant_id, type);
 
+-- events is created before entities, so its entity link is added here.
+alter table events
+  add constraint events_entity_id_fkey foreign key (entity_id) references entities(id);
+
 create table source_links (
   id uuid primary key default gen_random_uuid(),
   tenant_id uuid not null references tenants(id),

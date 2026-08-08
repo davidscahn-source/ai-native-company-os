@@ -57,11 +57,7 @@ export async function upsertEntity(tx: Queryable, draft: EntityDraft): Promise<s
        where provider = $1 and source_type = $2 and source_id = $3`,
       [draft.provider, draft.sourceType, draft.sourceId, JSON.stringify(draft.canonical ?? {})]
     );
-    await tx.query(
-      `update entities set last_seen_at = now(), canonical = canonical || $2::jsonb
-       where id = $1`,
-      [existing.entity_id, JSON.stringify(draft.canonical ?? {})]
-    );
+    await touchEntity(tx, existing.entity_id, draft);
     return existing.entity_id;
   }
 
@@ -78,6 +74,7 @@ export async function upsertEntity(tx: Queryable, draft: EntityDraft): Promise<s
   const matched = byEmail[0]?.id;
   if (matched !== undefined) {
     entityId = matched;
+    await touchEntity(tx, entityId, draft);
   } else {
     entityId = randomUUID();
     await tx.query(
@@ -100,6 +97,18 @@ export async function upsertEntity(tx: Queryable, draft: EntityDraft): Promise<s
     ]
   );
   return entityId;
+}
+
+/** Merge a draft's data into an already-resolved entity (newer payloads win). */
+async function touchEntity(tx: Queryable, entityId: string, draft: EntityDraft): Promise<void> {
+  await tx.query(
+    `update entities
+     set last_seen_at = now(),
+         canonical = canonical || $2::jsonb,
+         display_name = coalesce($3, display_name)
+     where id = $1`,
+    [entityId, JSON.stringify(draft.canonical ?? {}), draft.displayName ?? null]
+  );
 }
 
 export interface CanonicalEventRow {

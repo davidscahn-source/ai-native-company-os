@@ -5,6 +5,8 @@ import type { Normalizer } from "./types.js";
 export interface IngestResult {
   duplicate: boolean;
   ignored: boolean;
+  /** true when the normalizer rejected the payload (raw event kept, status `failed`) */
+  failed: boolean;
   entities: number;
   events: number;
 }
@@ -25,19 +27,20 @@ export async function ingestPayload(
 ): Promise<IngestResult> {
   return withTenant(client, tenantId, async (tx) => {
     const raw = await ingestRawEvent(tx, { provider, dedupKey, payload });
-    if (raw.duplicate) return { duplicate: true, ignored: false, entities: 0, events: 0 };
+    if (raw.duplicate)
+      return { duplicate: true, ignored: false, failed: false, entities: 0, events: 0 };
 
     let batch;
     try {
       batch = normalizer(payload);
     } catch (err) {
       await markRawEvent(tx, raw.rawEventId!, "failed", String(err));
-      return { duplicate: false, ignored: false, entities: 0, events: 0 };
+      return { duplicate: false, ignored: false, failed: true, entities: 0, events: 0 };
     }
 
     if (batch === null) {
       await markRawEvent(tx, raw.rawEventId!, "processed", "ignored: unhandled payload type");
-      return { duplicate: false, ignored: true, entities: 0, events: 0 };
+      return { duplicate: false, ignored: true, failed: false, entities: 0, events: 0 };
     }
 
     const refToEntityId = new Map<string, string>();
@@ -61,6 +64,12 @@ export async function ingestPayload(
     }
 
     await markRawEvent(tx, raw.rawEventId!, "processed");
-    return { duplicate: false, ignored: false, entities: batch.entities.length, events: inserted };
+    return {
+      duplicate: false,
+      ignored: false,
+      failed: false,
+      entities: batch.entities.length,
+      events: inserted,
+    };
   });
 }
