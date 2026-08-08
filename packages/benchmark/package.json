@@ -16,6 +16,7 @@
     "@companyos/db": "workspace:*",
     "@companyos/intelligence": "workspace:*",
     "@companyos/llm": "workspace:*",
-    "@companyos/state": "workspace:*"
+    "@companyos/state": "workspace:*",
+    "@companyos/simulator": "workspace:*"
   }
 }

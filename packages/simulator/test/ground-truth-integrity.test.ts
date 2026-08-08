@@ -106,6 +106,23 @@ describe("ground truth integrity across every dev seed", () => {
     expect(violations).toEqual([]);
   });
 
+  it("no undeclared open bug is old enough that flagging it would be correct", () => {
+    // The ground truth must not call a correct finding noise. Background open
+    // bugs stay under the notable threshold so precision measures real errors.
+    const NOTABLE = 14;
+    const violations: string[] = [];
+    for (const c of companies) {
+      const stale = c.groundTruth.signals.find((s) => s.kind === "stale_bug")!;
+      const staleId = Number(stale.evidenceKeys[0]!.slice("issue:".length));
+      for (const [id, age] of openBugAges(c)) {
+        if (id !== staleId && age >= NOTABLE) {
+          violations.push(`seed ${c.seed}: undeclared bug ${id} open ${age.toFixed(1)}d`);
+        }
+      }
+    }
+    expect(violations).toEqual([]);
+  });
+
   it("the planted stale bug is genuinely the oldest open bug", () => {
     const violations: string[] = [];
     for (const c of companies) {

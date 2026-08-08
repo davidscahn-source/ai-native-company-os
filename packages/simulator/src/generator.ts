@@ -202,13 +202,17 @@ export function generateCompany(opts: GenerateOptions): GeneratedCompany {
   const rb = root.fork("bugs");
   let issueNo = 0;
   const STALE_BUG_AGE = 26; // must match the planted stale bug below
+  // A bug open longer than this is genuinely worth surfacing. Background bugs
+  // must stay BELOW it: otherwise a detector that flags them is right while
+  // the ground truth calls it noise, and precision punishes correct work.
+  const NOTABLE_BUG_AGE = 14;
   for (let i = 0; i < vol.bugs; i++) {
     // A background bug that never closes must still be YOUNGER than the
     // planted stale bug, or the planted signal is not the stalest thing in
     // the company and the ground truth lies.
     const neverCloses = rb.chance(0.2);
     const openedDay = neverCloses
-      ? days - STALE_BUG_AGE + 5 + rb.next() * (STALE_BUG_AGE - 7)
+      ? days - NOTABLE_BUG_AGE + 2 + rb.next() * (NOTABLE_BUG_AGE - 4)
       : rb.next() * (days - 10);
     const id = 900000 + seed * 100 + issueNo;
     const number = 1000 + issueNo;
