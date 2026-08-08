@@ -21,3 +21,11 @@ export {
 export type { BriefSectionKey, FounderBrief, BriefRunOptions } from "./brief.js";
 export { askCompany, ASK_HARNESS_VERSION } from "./ask.js";
 export type { AskResult, AskOptions } from "./ask.js";
+export {
+  proposeActionFromRecommendation,
+  decideAction,
+  executeAction,
+  ACTION_TASKS_CREATE_INTERNAL,
+  MAX_EXECUTABLE_RISK_TIER,
+} from "./action.js";
+export type { ActionRow } from "./action.js";
