@@ -1,0 +1,14 @@
+# Decision Log
+
+SOP §1에 따라 비용·외부노출·제품방향에 해당하지 않는 기술 결정을 여기 기록한다.
+형식: 날짜 / 결정 / 근거 / 재검토 조건.
+
+| #     | 날짜       | 결정                                                                                                                        | 근거                                                                                                              | 재검토 조건                              |
+| ----- | ---------- | --------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
+| D-001 | 2026-08-08 | M1은 ORM 없이 단일 chokepoint(`Queryable`)를 통한 parameterized SQL 사용. Drizzle 도입은 M2에서 쿼리 복잡도가 정당화할 때   | "smallest implementation that advances the M1 proof". graph API(M2)부터 쿼리 복잡도 상승 예상                     | M2 graph API 구현 시                     |
+| D-002 | 2026-08-08 | 테스트 DB는 PGlite(임베디드 Postgres). CI에 서비스 컨테이너 불필요                                                          | 실제 Postgres 시맨틱(RLS 포함) + 빠른 CI. 프로덕션 드라이버(Supabase)는 M2에서 동일 `SqlClient` 인터페이스로 추가 | PGlite와 프로덕션 PG의 동작 차이 발견 시 |
+| D-003 | 2026-08-08 | 엔티티 id는 클라이언트 생성 uuid (INSERT RETURNING의 RLS 상호작용 회피, 테스트 결정성)                                      | 단순성                                                                                                            | —                                        |
+| D-004 | 2026-08-08 | RLS는 FORCE + non-superuser role로 강제. 앱/테스트 세션은 절대 superuser 금지                                               | 침투 테스트가 실증: superuser는 FORCE RLS도 우회한다                                                              | —                                        |
+| D-005 | 2026-08-08 | credential 암호화는 M1에서 envelope-lite(AES-256-GCM, env root key). per-tenant DEK + KMS는 Phase 2 (저장 포맷은 이미 호환) | ADR-010 단계적 이행                                                                                               | Phase 2 진입 시                          |
+| D-006 | 2026-08-08 | dedup key: Stripe = event id, GitHub = delivery id(전송층). 페이로드 내부는 안정적 node id 기준                             | provider 재전송 시맨틱                                                                                            | —                                        |
+| D-007 | 2026-08-08 | tenants 테이블에 insert policy(true) 허용 — tenant 생성은 app-layer가 가드하는 control-plane 작업. select는 자기 tenant만   | FORCE RLS 하에서 부트스트랩 필요                                                                                  | RBAC 도입(M4+) 시                        |

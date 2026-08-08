@@ -1,0 +1,12 @@
+{
+  "action": "closed",
+  "pull_request": {
+    "id": 7001,
+    "number": 12,
+    "title": "Fix checkout crash",
+    "merged": true,
+    "created_at": "2026-08-07T12:00:00Z",
+    "updated_at": "2026-08-07T14:00:00Z"
+  },
+  "repository": { "id": 555, "full_name": "acme/app" }
+}

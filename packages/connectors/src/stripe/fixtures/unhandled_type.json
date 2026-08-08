@@ -1,0 +1,6 @@
+{
+  "id": "evt_9z",
+  "type": "charge.dispute.created",
+  "created": 1754600500,
+  "data": { "object": { "id": "dp_1" } }
+}

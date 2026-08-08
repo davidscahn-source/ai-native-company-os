@@ -1,0 +1,12 @@
+{
+  "action": "opened",
+  "issue": {
+    "id": 9002,
+    "number": 43,
+    "title": "Add dark mode",
+    "labels": [],
+    "created_at": "2026-08-07T11:00:00Z",
+    "updated_at": "2026-08-07T11:00:00Z"
+  },
+  "repository": { "id": 555, "full_name": "acme/app" }
+}
