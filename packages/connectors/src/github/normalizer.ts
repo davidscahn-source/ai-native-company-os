@@ -17,13 +17,15 @@ export const normalizeGithub: Normalizer = (payload: unknown): NormalizedBatch |
   if (!repo || typeof repo.full_name !== "string" || !isId(repo.id)) {
     throw new Error("malformed github event");
   }
-  const repoEntity = {
+  const repoFullName = repo.full_name;
+  const repoEntity = (observedAt: string) => ({
     sourceType: "repository",
     sourceId: String(repo.id),
     entityType: "repository",
-    displayName: repo.full_name,
-    canonical: { full_name: repo.full_name },
-  };
+    displayName: repoFullName,
+    canonical: { full_name: repoFullName },
+    observedAt,
+  });
 
   if (ev.issue && (ev.action === "opened" || ev.action === "closed")) {
     const issue = ev.issue;
@@ -36,14 +38,18 @@ export const normalizeGithub: Normalizer = (payload: unknown): NormalizedBatch |
     const occurredAt = iso(issue.updated_at ?? issue.created_at);
     return {
       entities: [
-        repoEntity,
+        repoEntity(occurredAt),
         {
           sourceType: "issue",
           sourceId,
           entityType: isBug ? "bug" : "task",
           displayName: typeof issue.title === "string" ? issue.title : undefined,
           canonical: { number: issue.number ?? null, repo: repo.full_name, labels },
+          observedAt: occurredAt,
         },
+      ],
+      relationships: [
+        { fromRef: `repository:${String(repo.id)}`, toRef: `issue:${sourceId}`, type: "contains" },
       ],
       events: [
         {
@@ -69,13 +75,21 @@ export const normalizeGithub: Normalizer = (payload: unknown): NormalizedBatch |
     const occurredAt = iso(pr.updated_at ?? pr.created_at);
     return {
       entities: [
-        repoEntity,
+        repoEntity(occurredAt),
         {
           sourceType: "pull_request",
           sourceId,
           entityType: "pull_request",
           displayName: typeof pr.title === "string" ? pr.title : undefined,
           canonical: { number: pr.number ?? null, repo: repo.full_name, merged },
+          observedAt: occurredAt,
+        },
+      ],
+      relationships: [
+        {
+          fromRef: `repository:${String(repo.id)}`,
+          toRef: `pull_request:${sourceId}`,
+          type: "contains",
         },
       ],
       events: [

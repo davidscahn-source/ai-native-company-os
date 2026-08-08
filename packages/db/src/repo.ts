@@ -33,6 +33,8 @@ export interface EntityDraft {
   sourceType: string;
   sourceId: string;
   entityType: string;
+  /** provider-payload-derived observation time (ISO) — deterministic, never now() */
+  observedAt?: string | undefined;
   displayName?: string | undefined;
   canonical?: Record<string, unknown> | undefined;
 }
@@ -78,9 +80,15 @@ export async function upsertEntity(tx: Queryable, draft: EntityDraft): Promise<s
   } else {
     entityId = randomUUID();
     await tx.query(
-      `insert into entities (id, tenant_id, type, display_name, canonical)
-       values ($1, nullif(current_setting('app.tenant_id', true), '')::uuid, $2, $3, $4)`,
-      [entityId, draft.entityType, draft.displayName ?? null, JSON.stringify(draft.canonical ?? {})]
+      `insert into entities (id, tenant_id, type, display_name, canonical, first_observed_at)
+       values ($1, nullif(current_setting('app.tenant_id', true), '')::uuid, $2, $3, $4, $5)`,
+      [
+        entityId,
+        draft.entityType,
+        draft.displayName ?? null,
+        JSON.stringify(draft.canonical ?? {}),
+        draft.observedAt ?? null,
+      ]
     );
   }
 
@@ -105,9 +113,15 @@ async function touchEntity(tx: Queryable, entityId: string, draft: EntityDraft):
     `update entities
      set last_seen_at = now(),
          canonical = canonical || $2::jsonb,
-         display_name = coalesce($3, display_name)
+         display_name = coalesce($3, display_name),
+         first_observed_at = least(coalesce(first_observed_at, $4::timestamptz), coalesce($4::timestamptz, first_observed_at))
      where id = $1`,
-    [entityId, JSON.stringify(draft.canonical ?? {}), draft.displayName ?? null]
+    [
+      entityId,
+      JSON.stringify(draft.canonical ?? {}),
+      draft.displayName ?? null,
+      draft.observedAt ?? null,
+    ]
   );
 }
 
@@ -158,4 +172,43 @@ export async function markRawEvent(
     status,
     error ?? null,
   ]);
+}
+
+export interface RelationshipInput {
+  fromEntityId: string;
+  toEntityId: string;
+  type: string;
+  confidence?: number;
+  /** provenance: which rule created this edge and which source events prove it */
+  evidence: { rule: string; eventIds?: string[] };
+}
+
+/**
+ * Insert a graph edge with provenance. Both endpoints must be visible to the
+ * current tenant — FK checks bypass RLS, so we verify visibility explicitly to
+ * make cross-tenant edges impossible even with a leaked entity uuid.
+ */
+export async function addRelationship(tx: Queryable, rel: RelationshipInput): Promise<boolean> {
+  const visible = await tx.query<{ n: string }>(
+    `select count(distinct id) as n from entities where id = $1 or id = $2`,
+    [rel.fromEntityId, rel.toEntityId]
+  );
+  const expected = new Set([rel.fromEntityId, rel.toEntityId]).size;
+  if (Number(visible[0]!.n) !== expected) {
+    throw new Error("relationship endpoints must be visible to the current tenant");
+  }
+  const rows = await tx.query<{ id: string }>(
+    `insert into relationships (tenant_id, from_entity_id, to_entity_id, type, confidence, evidence)
+     values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1, $2, $3, $4, $5)
+     on conflict (tenant_id, from_entity_id, to_entity_id, type) do nothing
+     returning id`,
+    [
+      rel.fromEntityId,
+      rel.toEntityId,
+      rel.type,
+      rel.confidence ?? 1.0,
+      JSON.stringify(rel.evidence),
+    ]
+  );
+  return rows.length > 0;
 }

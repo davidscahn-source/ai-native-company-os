@@ -5,6 +5,8 @@ export interface EntityDraftOut {
   entityType: string;
   displayName?: string | undefined;
   canonical?: Record<string, unknown> | undefined;
+  /** provider-payload-derived observation time (ISO) */
+  observedAt?: string | undefined;
 }
 
 export interface EventDraftOut {
@@ -17,9 +19,17 @@ export interface EventDraftOut {
   payload?: Record<string, unknown> | undefined;
 }
 
+export interface RelationshipDraftOut {
+  /** `${sourceType}:${sourceId}` refs into this batch's entities */
+  fromRef: string;
+  toRef: string;
+  type: string;
+}
+
 export interface NormalizedBatch {
   entities: EntityDraftOut[];
   events: EventDraftOut[];
+  relationships?: RelationshipDraftOut[] | undefined;
 }
 
 /**

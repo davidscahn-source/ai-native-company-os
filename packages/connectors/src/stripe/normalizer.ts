@@ -30,6 +30,7 @@ export const normalizeStripe: Normalizer = (payload: unknown): NormalizedBatch |
             sourceType: "customer",
             sourceId: str(obj.id),
             entityType: "customer",
+            observedAt: occurredAt,
             displayName: typeof obj.name === "string" ? obj.name : undefined,
             canonical: email ? { email } : {},
           },
@@ -50,16 +51,31 @@ export const normalizeStripe: Normalizer = (payload: unknown): NormalizedBatch |
       const customerId = str(obj.customer);
       return {
         entities: [
-          { sourceType: "customer", sourceId: customerId, entityType: "customer" },
+          {
+            sourceType: "customer",
+            sourceId: customerId,
+            entityType: "customer",
+            observedAt: occurredAt,
+          },
           {
             sourceType: "invoice",
             sourceId: str(obj.id),
             entityType: "invoice",
+            observedAt: occurredAt,
             canonical: {
               amount_due: obj.amount_due ?? null,
               currency: obj.currency ?? null,
               customer_source_id: customerId,
             },
+          },
+        ],
+        relationships: [
+          {
+            fromRef: `customer:${customerId}`,
+            toRef: `invoice:${str(obj.id)}`,
+            // The provider FK (invoice.customer) proves billing ownership either
+            // way; "paid" is only true when the payment actually succeeded.
+            type: ev.type === "invoice.paid" ? "paid" : "billed_to",
           },
         ],
         events: [
@@ -79,13 +95,22 @@ export const normalizeStripe: Normalizer = (payload: unknown): NormalizedBatch |
       const customerId = str(obj.customer);
       return {
         entities: [
-          { sourceType: "customer", sourceId: customerId, entityType: "customer" },
+          {
+            sourceType: "customer",
+            sourceId: customerId,
+            entityType: "customer",
+            observedAt: occurredAt,
+          },
           {
             sourceType: "subscription",
             sourceId: str(obj.id),
             entityType: "subscription",
+            observedAt: occurredAt,
             canonical: { status: obj.status ?? null, customer_source_id: customerId },
           },
+        ],
+        relationships: [
+          { fromRef: `customer:${customerId}`, toRef: `subscription:${str(obj.id)}`, type: "owns" },
         ],
         events: [
           {
