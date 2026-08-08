@@ -30,3 +30,16 @@ jobs:
             echo "::error::LLM usage detected in a deterministic package (CLAUDE.md deterministic gate)"
             exit 1
           fi
+      - name: Credential chokepoint anchor (data-readiness gate)
+        run: |
+          # Any code touching integrations.credentials_encrypted MUST go through
+          # encryptCredential, which enforces the data-phase gate. Without this
+          # check the "chokepoint" is only a convention (docs/DATA-READINESS.md).
+          bad=""
+          for f in $(grep -rl "credentials_encrypted" packages --include="*.ts" || true); do
+            if ! grep -q "encryptCredential" "$f"; then bad="$bad $f"; fi
+          done
+          if [ -n "$bad" ]; then
+            echo "::error::credentials_encrypted written outside the guarded chokepoint:$bad"
+            exit 1
+          fi

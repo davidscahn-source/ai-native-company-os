@@ -8,17 +8,25 @@
  * explicitly and deliberately.
  *
  * HONEST LIMITATION: this guard is only as strong as the provider's key
- * format. Stripe distinguishes live from test keys, so Stripe is genuinely
- * gated here. GitHub, Slack, and Gmail have NO test-mode key format — a token
- * for a company's real workspace is byte-indistinguishable from a token for a
- * throwaway test org. Those providers must be gated by an explicit
- * scope/installation allowlist (tracked separately); do not read a passing
- * guard as proof that a GitHub token points at a test repository.
+ * format, and it covers FEWER credentials than one might assume:
+ *   - Stripe API keys DO distinguish live from test (`sk_live_`/`sk_test_`),
+ *     so those are genuinely gated.
+ *   - Stripe WEBHOOK SIGNING SECRETS do NOT: both modes issue `whsec_<random>`.
+ *     A production webhook secret is indistinguishable from a test one.
+ *   - GitHub, Slack, and Gmail have NO test-mode key format at all — a token
+ *     for a company's real workspace is byte-identical in shape to a token
+ *     for a throwaway test org.
+ * Everything in the second and third groups must be gated by an explicit
+ * installation/scope allowlist instead. A passing guard is NOT evidence that
+ * a credential points at a sandbox resource.
  */
 
-export type DataPhase = "phase0" | "phase1" | "beta";
+export type DataPhase = "phase0" | "phase1" | "phase2" | "phase3";
 
-const PHASES: readonly DataPhase[] = ["phase0", "phase1", "beta"];
+const PHASES: readonly DataPhase[] = ["phase0", "phase1", "phase2", "phase3"];
+
+/** Phases at or beyond the Phase 2 data-readiness gate may hold production data. */
+const POST_GATE_PHASES: readonly DataPhase[] = ["phase2", "phase3"];
 
 /**
  * Current phase, from COMPANYOS_DATA_PHASE. Defaults to the most restrictive
@@ -37,24 +45,27 @@ export function currentDataPhase(env: Record<string, string | undefined>): DataP
 }
 
 /**
- * Known production-credential shapes. Matching a pattern is proof of a
- * production credential; NOT matching proves nothing (see limitation above).
+ * Known production-credential shapes. Matching one is proof of a production
+ * credential; NOT matching proves nothing (see limitation above).
+ *
+ * Deliberately unanchored: credentials are commonly stored as a JSON blob
+ * (Stripe needs key + webhook secret; a GitHub App needs three fields), so a
+ * live key can sit anywhere inside the string, not just at position 0.
  */
 const PRODUCTION_KEY_PATTERNS: { pattern: RegExp; what: string }[] = [
-  { pattern: /^sk_live_/, what: "Stripe live secret key" },
-  { pattern: /^rk_live_/, what: "Stripe live restricted key" },
-  { pattern: /^pk_live_/, what: "Stripe live publishable key" },
-  { pattern: /^whsec_live_/, what: "Stripe live webhook secret" },
+  { pattern: /\bsk_live_[A-Za-z0-9]/, what: "Stripe live secret key" },
+  { pattern: /\brk_live_[A-Za-z0-9]/, what: "Stripe live restricted key" },
+  { pattern: /\bpk_live_[A-Za-z0-9]/, what: "Stripe live publishable key" },
 ];
 
-/** Providers whose credentials this guard can actually classify. */
+/** Providers whose credentials this guard can actually classify by shape. */
 export const GATEABLE_PROVIDERS = ["stripe"] as const;
 
 export class ProductionDataRefused extends Error {}
 
 /**
- * Throws if `secret` is a recognized production credential and the current
- * phase has not been raised to `beta` (the post-gate phase).
+ * Throws if `secret` contains a recognized production credential and the
+ * current phase has not passed the Phase 2 data-readiness gate.
  *
  * The error deliberately never includes the secret — only its classification.
  */
@@ -64,7 +75,7 @@ export function assertCredentialAllowed(
   env: Record<string, string | undefined> = process.env
 ): void {
   const phase = currentDataPhase(env);
-  if (phase === "beta") return; // gate explicitly passed; see DATA-READINESS.md
+  if (POST_GATE_PHASES.includes(phase)) return; // gate passed; see DATA-READINESS.md
 
   for (const { pattern, what } of PRODUCTION_KEY_PATTERNS) {
     if (pattern.test(secret)) {
@@ -72,7 +83,7 @@ export function assertCredentialAllowed(
         `refusing to store a ${what} for provider "${provider}" in data phase "${phase}". ` +
           `Phase 0/1 permit provider sandbox/test-mode credentials only. ` +
           `Production company data requires the data-readiness gate ` +
-          `(docs/DATA-READINESS.md) and COMPANYOS_DATA_PHASE=beta.`
+          `(docs/DATA-READINESS.md) and COMPANYOS_DATA_PHASE=phase2.`
       );
     }
   }

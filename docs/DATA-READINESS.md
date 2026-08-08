@@ -37,19 +37,24 @@ M3의 실모델 평가도 **frozen synthetic benchmark × real LLM**이면 충�
 - [ ] Incident response 절차 + 통지 기준
 - [ ] LLM provider 데이터 처리 조건 확인 (학습 미사용, 보존 기간)
 - [ ] Cross-tenant 침투 테스트가 프로덕션 드라이버(Supabase)에서 green
-- [ ] Owner의 명시적 서면 승인 + `COMPANYOS_DATA_PHASE=beta` 설정
+- [ ] Owner의 명시적 서면 승인 + `COMPANYOS_DATA_PHASE=phase2` 설정
 
 ## 코드로 강제되는 부분 (prose가 아니라 control)
 
 `packages/db/src/data-policy.ts` — credential 저장 chokepoint(`encryptCredential`)에서
 알려진 **production 키 형식을 거부**한다. 기본값은 가장 보수적인 `phase0`이며,
-운영 자격증명은 `COMPANYOS_DATA_PHASE=beta`를 명시적으로 설정해야만 통과한다.
+운영 자격증명은 `COMPANYOS_DATA_PHASE=phase2`(또는 `phase3`)를 명시적으로 설정해야만 통과한다.
+
+또한 CI가 `credentials_encrypted` 컬럼을 `encryptCredential` 경유 없이 쓰는 코드를
+차단한다 — 이것이 없으면 chokepoint는 관례일 뿐 통제가 아니다.
 
 ### 이 통제의 정직한 한계
 
 키 형식으로 구분 가능한 provider만 실제로 막힌다.
 
-- **Stripe**: `sk_live_` / `rk_live_` / `pk_live_` / `whsec_live_` → **막힘**
+- **Stripe API 키**: `sk_live_` / `rk_live_` / `pk_live_` → **막힘**
+- **Stripe webhook secret**: live/test 모두 `whsec_<random>` — **형식 구분이 없어서 못 막음.**
+  (`whsec_live_` 라는 것은 존재하지 않는다. 초판에서 막힌다고 잘못 적었고 리뷰에서 적발됨.)
 - **GitHub / Slack / Gmail**: test-mode 키 형식이 **없다.** 회사 실제 워크스페이스
   토큰과 일회용 테스트 org 토큰은 바이트 단위로 구분 불가. → **키 형식으로 못 막는다.**
   이들은 설치/스코프 **allowlist**로 통제해야 하며, 가드 통과가 "테스트 리소스를
