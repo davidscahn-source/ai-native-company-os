@@ -13,10 +13,10 @@
   },
   "dependencies": {
     "@companyos/db": "workspace:*",
-    "@companyos/state": "workspace:*"
+    "@companyos/state": "workspace:*",
+    "@companyos/llm": "workspace:*"
   },
   "devDependencies": {
-    "@companyos/connectors": "workspace:*",
-    "@companyos/llm": "workspace:*"
+    "@companyos/connectors": "workspace:*"
   }
 }

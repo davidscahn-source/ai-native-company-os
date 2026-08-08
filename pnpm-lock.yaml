@@ -62,6 +62,9 @@ importers:
       "@companyos/db":
         specifier: workspace:*
         version: link:../db
+      "@companyos/llm":
+        specifier: workspace:*
+        version: link:../llm
       "@companyos/state":
         specifier: workspace:*
         version: link:../state
@@ -69,9 +72,6 @@ importers:
       "@companyos/connectors":
         specifier: workspace:*
         version: link:../connectors
-      "@companyos/llm":
-        specifier: workspace:*
-        version: link:../llm
 
   packages/llm:
     dependencies:
