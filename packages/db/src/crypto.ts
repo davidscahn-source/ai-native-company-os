@@ -1,12 +1,22 @@
 import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
+import { assertCredentialAllowed } from "./data-policy.js";
 
 /**
  * Credential encryption (M1: envelope-lite).
  * AES-256-GCM with a root key supplied via environment/KMS — never stored in the DB.
  * Format: base64(iv).base64(tag).base64(ciphertext)
  * ADR-010: per-tenant DEKs wrap this in Phase 2; the storage format already allows it.
+ *
+ * This is also the data-readiness chokepoint: a credential that cannot be
+ * encrypted cannot be stored, so the phase gate is enforced here rather than
+ * in a document nobody executes (docs/DATA-READINESS.md, D-012).
  */
-export function encryptCredential(plaintext: string, rootKeyHex: string): string {
+export function encryptCredential(
+  plaintext: string,
+  rootKeyHex: string,
+  opts: { provider?: string } = {}
+): string {
+  assertCredentialAllowed(opts.provider ?? "unknown", plaintext);
   const key = keyFromHex(rootKeyHex);
   const iv = randomBytes(12);
   const cipher = createCipheriv("aes-256-gcm", key, iv);

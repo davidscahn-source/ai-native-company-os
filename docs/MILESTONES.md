@@ -11,7 +11,8 @@
 - [x] CLAUDE.md + SessionStart hook (모든 미래 세션 자동 세팅)
 - [x] 거버넌스 문서: NORTH-STAR / SOP / MILESTONES
 - [x] GitHub tracking issues 생성 (#1 #2 #3, Owner 준비물 #4)
-- [ ] Owner 준비물: Stripe 테스트 키, GitHub App, Supabase 프로젝트, Anthropic 키 + 월 지출 상한
+- [ ] Owner 준비물: Stripe **test-mode** 키, 테스트 repo 전용 GitHub App, Supabase 프로젝트,
+      Anthropic 키 + 월 지출 상한 (운영 자격증명 금지 — docs/DATA-READINESS.md)
 
 ## M1 — Sprint 1: LLM 없는 뼈대 (목표: M0 + 1주)
 
@@ -23,7 +24,8 @@ Exit criteria:
 - [ ] **Cross-tenant 침투 테스트 suite green** (기능보다 먼저)
 - [ ] 공용 Sync Harness v1 (서명 검증·dedup·cursor·재시도) + fixture 테스트
 - [ ] Stripe connector (test 모드) + GitHub connector — normalizer fixture ≥ 10종
-- [ ] **Proof 1**: 실계정 Stripe+GitHub 연결 → entities 생성
+- [ ] **Proof 1**: Stripe **test-mode** + 격리된 테스트 GitHub repo 연결 → entities 생성
+      (docs/DATA-READINESS.md — Phase 0에서 운영 데이터 금지)
 - [ ] Deterministic gate: 전 코드 LLM 호출 0
 
 ## M2 — Sprint 2: 회사를 이해하는 DB (목표: M1 + 1주)
@@ -55,4 +57,9 @@ Exit criteria:
 
 ## M4+ — Phase 1 (Local Alpha, 8주): v0.6 §32 스프린트 표를 따름
 
-첫 dogfooding tenant: Owner 회사. 종료 조건 = v0.6 §34 수용 기준 실측.
+첫 dogfooding tenant는 **통제된 dogfood tenant**(의도적으로 구성한 데이터)다.
+Owner 회사의 운영 데이터는 Phase 1의 기본값이 **아니며**, 내부 비민감 데이터라도
+건별 명시 승인이 필요하다. 실제 고객 운영 데이터는 Phase 2 게이트
+(docs/DATA-READINESS.md) 통과 전까지 금지.
+
+종료 조건 = v0.6 §34 수용 기준 실측.
