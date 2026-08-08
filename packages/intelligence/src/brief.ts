@@ -1,6 +1,6 @@
 import type { Queryable } from "@companyos/db";
 import type { LlmGateway } from "@companyos/llm";
-import type { CompanyStateSnapshot } from "@companyos/state";
+import type { CompanyStateSnapshot, StateDelta } from "@companyos/state";
 import type { ContextOptions, ContextPackage } from "./context.js";
 import { buildContext, renderContext, CONTEXT_VERSION } from "./context.js";
 import type { InsightDraft } from "./insight.js";
@@ -68,6 +68,8 @@ export interface BriefRunOptions {
   runId: string;
   context?: ContextOptions;
   persist?: boolean;
+  /** Harness B: include a precomputed StateDelta as extra context (the ONE A/B variable) */
+  delta?: StateDelta;
 }
 
 export async function generateFounderBrief(
@@ -87,7 +89,7 @@ export async function generateFounderBrief(
       { role: "system", content: briefSystemPrompt() },
       {
         role: "user",
-        content: `${renderContext(pkg)}\n\nProduce the founder brief insights for this company state.`,
+        content: `${renderContext(pkg)}${renderDelta(opts.delta)}\n\nProduce the founder brief insights for this company state.`,
       },
     ],
   });
@@ -114,4 +116,10 @@ export async function generateFounderBrief(
     rejected,
     context: pkg,
   };
+}
+
+/** Harness B appends the delta; Harness A passes nothing. Pure and versioned via harness key. */
+export function renderDelta(delta: StateDelta | undefined): string {
+  if (!delta) return "";
+  return `\nstate_delta (${delta.from} → ${delta.to}): ${JSON.stringify(delta.changes)}`;
 }

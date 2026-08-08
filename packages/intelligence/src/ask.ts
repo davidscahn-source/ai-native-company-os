@@ -1,13 +1,13 @@
 import type { Queryable } from "@companyos/db";
 import type { LlmGateway } from "@companyos/llm";
-import type { CompanyStateSnapshot } from "@companyos/state";
+import type { CompanyStateSnapshot, StateDelta } from "@companyos/state";
 import type { AnswerabilityVerdict } from "./answerability.js";
 import { assessAnswerability } from "./answerability.js";
 import type { ContextOptions, ContextPackage } from "./context.js";
 import { buildContext, renderContext } from "./context.js";
 import type { InsightDraft } from "./insight.js";
 import { parseInsightDrafts } from "./insight.js";
-import { briefSystemPrompt } from "./brief.js";
+import { briefSystemPrompt, renderDelta } from "./brief.js";
 import { saveInsights, validateInsights } from "./validator.js";
 
 /**
@@ -39,6 +39,8 @@ export interface AskOptions {
   persist?: boolean;
   /** window/budget knobs; questionClass is always taken from the verdict */
   context?: Omit<ContextOptions, "questionClass">;
+  /** Harness B: include a precomputed StateDelta as extra context (the ONE A/B variable) */
+  delta?: StateDelta;
 }
 
 export async function askCompany(
@@ -87,7 +89,7 @@ export async function askCompany(
       { role: "system", content: briefSystemPrompt() },
       {
         role: "user",
-        content: `${renderContext(pkg)}${constraint}\n\nQuestion: ${question}\nAnswer with insight JSON only.`,
+        content: `${renderContext(pkg)}${renderDelta(opts.delta)}${constraint}\n\nQuestion: ${question}\nAnswer with insight JSON only.`,
       },
     ],
   });
