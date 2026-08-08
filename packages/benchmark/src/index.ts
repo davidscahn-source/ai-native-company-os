@@ -4,3 +4,7 @@ export { SCENARIOS } from "./scenarios.js";
 export { runBenchmark } from "./runner.js";
 export type { BenchmarkReport, HarnessKey, RunBenchmarkOptions, ScenarioResult } from "./runner.js";
 export { reportToMarkdown, compareReports } from "./report.js";
+export { scoreUtility, resolveGroundTruthKeys, UTILITY_BENCHMARK_VERSION } from "./utility.js";
+export type { UtilityScore, SignalOutcome, ScoreInput } from "./utility.js";
+export { detectDeterministically, BASELINE_VERSION } from "./deterministic-baseline.js";
+export type { BaselineOptions } from "./deterministic-baseline.js";
