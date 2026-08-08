@@ -51,15 +51,21 @@ export function parseInsightDrafts(raw: string): InsightDraft[] {
       throw new Error(`insight[${i}]: invalid category ${String(category)}`);
     if (typeof o.statement !== "string" || o.statement.length === 0)
       throw new Error(`insight[${i}]: missing statement`);
-    const refs = Array.isArray(o.evidenceRefs) ? (o.evidenceRefs as EvidenceRef[]) : [];
+    if (o.evidenceRefs !== undefined && !Array.isArray(o.evidenceRefs))
+      throw new Error(`insight[${i}]: evidenceRefs is not an array`);
+    const refs = (o.evidenceRefs ?? []) as EvidenceRef[];
+    // A malformed ref is a generation failure like any other — dropping it
+    // silently would truncate the evidence trail and mislead the validator.
+    for (const r of refs) {
+      if ((r.type !== "event" && r.type !== "entity") || typeof r.id !== "string")
+        throw new Error(`insight[${i}]: malformed evidence ref`);
+    }
     return {
       kind,
       category,
       statement: o.statement,
       confidence: typeof o.confidence === "number" ? o.confidence : null,
-      evidenceRefs: refs.filter(
-        (r) => (r.type === "event" || r.type === "entity") && typeof r.id === "string"
-      ),
+      evidenceRefs: refs,
       motivatedBy: typeof o.motivatedBy === "number" ? o.motivatedBy : null,
       missing: typeof o.missing === "string" ? o.missing : null,
     };

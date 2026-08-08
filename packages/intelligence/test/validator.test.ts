@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { SqlClient } from "@companyos/db";
 import { createTenant, createTestClient, withTenant } from "@companyos/db";
-import { ingestAllFixtures } from "@companyos/connectors";
+import { ingestAllFixtures } from "@companyos/connectors/testing";
 import type { InsightDraft } from "../src/insight.js";
 import { parseInsightDrafts } from "../src/insight.js";
 import { saveInsights, validateInsights } from "../src/validator.js";
@@ -159,6 +159,63 @@ describe("evidence validator (the LLM is never the authority)", () => {
       "unknown without a reason for unanswerability",
       "critical insight without evidence",
     ]);
+  });
+
+  it("a malformed evidence id rejects only its own draft — later drafts and saves still work", async () => {
+    await withTenant(db, tenantA, async (tx) => {
+      const out = await validateInsights(tx, [
+        fact([{ type: "event", id: "definitely-not-a-uuid" }]),
+        fact([{ type: "event", id: realEventId }]),
+      ]);
+      // one poisoned draft must not abort the transaction for the batch
+      expect(out.accepted).toHaveLength(1);
+      expect(out.rejected).toHaveLength(1);
+      const saved = await saveInsights(tx, "run-poison", "harness-v1", {}, out.accepted);
+      expect(saved).toBe(1);
+    });
+  });
+
+  it("recommendation motivated by a REJECTED claim dies with it", async () => {
+    const out = await withTenant(db, tenantA, (tx) =>
+      validateInsights(tx, [
+        fact([{ type: "event", id: "00000000-0000-4000-8000-000000000000" }]),
+        {
+          kind: "recommendation",
+          category: "revenue",
+          statement: "환각 fact에 기반한 추천",
+          confidence: null,
+          evidenceRefs: [],
+          motivatedBy: 0,
+          missing: null,
+        },
+      ])
+    );
+    expect(out.accepted).toHaveLength(0);
+    expect(out.rejected.map((r) => r.reason)).toEqual([
+      "fact evidence does not resolve in this tenant",
+      "recommendation motivated by a rejected claim",
+    ]);
+  });
+
+  it("accepted inference carries only refs that actually resolved", async () => {
+    const out = await withTenant(db, tenantA, (tx) =>
+      validateInsights(tx, [
+        {
+          kind: "inference",
+          category: "customer",
+          statement: "고객 이탈 위험",
+          confidence: 0.7,
+          evidenceRefs: [
+            { type: "entity", id: realEntityId },
+            { type: "entity", id: "00000000-0000-4000-8000-000000000000" },
+          ],
+          motivatedBy: null,
+          missing: null,
+        },
+      ])
+    );
+    expect(out.accepted).toHaveLength(1);
+    expect(out.accepted[0]!.evidenceRefs).toEqual([{ type: "entity", id: realEntityId }]);
   });
 
   it("persists only accepted insights, with watermark + harness version", async () => {

@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { SqlClient } from "@companyos/db";
 import { createTenant, createTestClient, withTenant } from "@companyos/db";
-import { ingestAllFixtures } from "@companyos/connectors";
+import { ingestAllFixtures } from "@companyos/connectors/testing";
 import type { CompanyStateSnapshot } from "@companyos/state";
 import { computeSnapshot } from "@companyos/state";
 import { assessAnswerability, classifyQuestion } from "../src/answerability.js";

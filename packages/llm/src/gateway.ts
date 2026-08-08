@@ -166,5 +166,9 @@ async function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
     ]);
   } finally {
     clearTimeout(timer);
+    // If the timer won, the abandoned adapter promise may still reject later
+    // (e.g. connection reset). Without a handler that late rejection is an
+    // unhandled rejection and kills the process mid-run.
+    p.catch(() => {});
   }
 }

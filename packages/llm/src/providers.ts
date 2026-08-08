@@ -10,27 +10,35 @@ import type { LlmMessage, LlmUsage, ProviderAdapter, RoutingTable } from "./type
  */
 
 export function routingFromEnv(env: Record<string, string | undefined>): RoutingTable {
-  const route = (
-    prefix: string,
-    fallback?: { provider: string; model: string; inPrice: number; outPrice: number }
-  ) => ({
-    primary: {
-      provider: env[`LLM_${prefix}_PROVIDER`] ?? "anthropic",
-      model: env[`LLM_${prefix}_MODEL`] ?? defaultModel(prefix),
-      inputPricePerMTok: num(env[`LLM_${prefix}_IN_PRICE`], defaultInPrice(prefix)),
-      outputPricePerMTok: num(env[`LLM_${prefix}_OUT_PRICE`], defaultOutPrice(prefix)),
-    },
-    ...(fallback
-      ? {
-          fallback: {
-            provider: fallback.provider,
-            model: fallback.model,
-            inputPricePerMTok: fallback.inPrice,
-            outputPricePerMTok: fallback.outPrice,
-          },
-        }
-      : {}),
-  });
+  const route = (prefix: string) => {
+    // A fallback route exists iff the operator configures one:
+    // LLM_<PROFILE>_FALLBACK_MODEL (+ optional PROVIDER / IN_PRICE / OUT_PRICE).
+    const fallbackModel = env[`LLM_${prefix}_FALLBACK_MODEL`];
+    return {
+      primary: {
+        provider: env[`LLM_${prefix}_PROVIDER`] ?? "anthropic",
+        model: env[`LLM_${prefix}_MODEL`] ?? defaultModel(prefix),
+        inputPricePerMTok: num(env[`LLM_${prefix}_IN_PRICE`], defaultInPrice(prefix)),
+        outputPricePerMTok: num(env[`LLM_${prefix}_OUT_PRICE`], defaultOutPrice(prefix)),
+      },
+      ...(fallbackModel
+        ? {
+            fallback: {
+              provider: env[`LLM_${prefix}_FALLBACK_PROVIDER`] ?? "anthropic",
+              model: fallbackModel,
+              inputPricePerMTok: num(
+                env[`LLM_${prefix}_FALLBACK_IN_PRICE`],
+                defaultInPrice(prefix)
+              ),
+              outputPricePerMTok: num(
+                env[`LLM_${prefix}_FALLBACK_OUT_PRICE`],
+                defaultOutPrice(prefix)
+              ),
+            },
+          }
+        : {}),
+    };
+  };
   return {
     FAST: route("FAST"),
     BALANCED: route("BALANCED"),
@@ -58,7 +66,7 @@ function num(v: string | undefined, d: number): number {
 export function anthropicAdapter(apiKey: string): ProviderAdapter {
   return {
     name: "anthropic",
-    async complete({ model, messages, maxOutputTokens }) {
+    async complete({ model, messages, maxOutputTokens, timeoutMs }) {
       const system = messages
         .filter((m) => m.role === "system")
         .map((m) => m.content)
@@ -66,6 +74,9 @@ export function anthropicAdapter(apiKey: string): ProviderAdapter {
       const rest = messages.filter((m) => m.role !== "system");
       const res = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
+        // Abort the request when the gateway's timeout passes — otherwise a
+        // hung connection outlives the TimeoutError the caller already saw.
+        signal: AbortSignal.timeout(timeoutMs),
         headers: {
           "x-api-key": apiKey,
           "anthropic-version": "2023-06-01",
@@ -106,9 +117,10 @@ export function anthropicAdapter(apiKey: string): ProviderAdapter {
 export function openaiAdapter(apiKey: string): ProviderAdapter {
   return {
     name: "openai",
-    async complete({ model, messages, maxOutputTokens }) {
+    async complete({ model, messages, maxOutputTokens, timeoutMs }) {
       const res = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
+        signal: AbortSignal.timeout(timeoutMs),
         headers: { authorization: `Bearer ${apiKey}`, "content-type": "application/json" },
         body: JSON.stringify({ model, max_completion_tokens: maxOutputTokens, messages }),
       });

@@ -18,9 +18,11 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm format
       - run: pnpm check
-      - name: Deterministic gate (M1-M2 — no LLM usage in packages)
+      - name: Deterministic gate (no LLM usage outside packages/llm + packages/intelligence)
         run: |
-          if grep -rniE "@anthropic-ai|api\.anthropic|anthropic\.claude|openai|claude-(opus|sonnet|haiku|fable|[0-9])" packages/db packages/connectors packages/graph packages/state packages/shared --include="*.ts"; then
-            echo "::error::LLM usage detected in packages/ — forbidden until M3 (CLAUDE.md deterministic gate)"
+          # Denylist, not allowlist: new packages are gated by default. Only
+          # llm/ and intelligence/ may legitimately touch model APIs (D-008).
+          if grep -rniE "@anthropic-ai|api\.anthropic|anthropic\.claude|openai|claude-(opus|sonnet|haiku|fable|[0-9])" packages --include="*.ts" --exclude-dir=llm --exclude-dir=intelligence --exclude-dir=node_modules; then
+            echo "::error::LLM usage detected in a deterministic package (CLAUDE.md deterministic gate)"
             exit 1
           fi
