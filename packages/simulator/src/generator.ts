@@ -43,6 +43,16 @@ const PLANS = [
 
 const DAY_MS = 24 * 3600 * 1000;
 
+/** Age of the planted stale bug, in days. */
+const STALE_BUG_AGE = 26;
+
+/**
+ * A bug open longer than this is genuinely worth surfacing. Background bugs
+ * must stay BELOW it: otherwise a detector that flags one is right while the
+ * ground truth calls it noise, and precision would punish correct work.
+ */
+const NOTABLE_BUG_AGE = 14;
+
 /** Shortest window in which every planted signal still fits inside the range. */
 const MIN_DAYS = 35;
 
@@ -201,11 +211,6 @@ export function generateCompany(opts: GenerateOptions): GeneratedCompany {
   // ── background: engineering activity ─────────────────────────────────────
   const rb = root.fork("bugs");
   let issueNo = 0;
-  const STALE_BUG_AGE = 26; // must match the planted stale bug below
-  // A bug open longer than this is genuinely worth surfacing. Background bugs
-  // must stay BELOW it: otherwise a detector that flags them is right while
-  // the ground truth calls it noise, and precision punishes correct work.
-  const NOTABLE_BUG_AGE = 14;
   for (let i = 0; i < vol.bugs; i++) {
     // A background bug that never closes must still be YOUNGER than the
     // planted stale bug, or the planted signal is not the stalest thing in
@@ -335,7 +340,7 @@ export function generateCompany(opts: GenerateOptions): GeneratedCompany {
   });
 
   // ── SIGNAL B: a bug that never got fixed ─────────────────────────────────
-  const staleDay = days - 26;
+  const staleDay = days - STALE_BUG_AGE;
   const staleId = 950000 + seed;
   payloads.push({
     provider: "github",
@@ -356,7 +361,7 @@ export function generateCompany(opts: GenerateOptions): GeneratedCompany {
     id: "signal-b-stale-bug",
     kind: "stale_bug",
     priority: 2,
-    truth: `Bug #4242 has been open 26 days with no close event, longer than any other open bug and far beyond the typical resolution window.`,
+    truth: `Bug #4242 has been open ${STALE_BUG_AGE} days with no close event, longer than any other open bug and far beyond the typical resolution window.`,
     evidenceKeys: [`issue:${staleId}`],
     observableFrom: at(staleDay + 7),
   });

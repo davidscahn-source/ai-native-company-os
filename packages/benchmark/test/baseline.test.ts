@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { SqlClient } from "@companyos/db";
 import { createTenant, createTestClient, withTenant } from "@companyos/db";
 import { generateCompany, ingestCompany, seedsOf } from "@companyos/simulator";
-import { detectDeterministically } from "../src/deterministic-baseline.js";
+import { BASELINE_VERSION, detectDeterministically } from "../src/deterministic-baseline.js";
 import { scoreUtility } from "../src/utility.js";
 import type { UtilityScore } from "../src/utility.js";
 
@@ -36,24 +36,31 @@ afterAll(async () => {
 });
 
 const mean = (xs: number[]): number => xs.reduce((a, b) => a + b, 0) / xs.length;
+const round = (x: number): number => Math.round(x * 1000) / 1000;
 
 describe("deterministic baseline (the floor an LLM harness must beat)", () => {
-  it("records the baseline numbers", () => {
-    const recall = mean(scores.map((s) => s.signalRecall));
-    const precision = mean(scores.map((s) => s.signalPrecision));
-    const noise = mean(scores.map((s) => s.noiseRatio));
+  it("stores the baseline as a committed snapshot, not console output", () => {
     const priority = scores.map((s) => s.priorityAccuracy).filter((v): v is number => v !== null);
-    const falseCausal = scores.reduce((n, s) => n + s.falseCausalClaims, 0);
-    console.log(
-      `BASELINE(${SEEDS.length} dev seeds) recall=${recall.toFixed(2)} precision=${precision.toFixed(2)} ` +
-        `noise=${noise.toFixed(2)} priority=${priority.length ? mean(priority).toFixed(2) : "n/a"} ` +
-        `falseCausal=${falseCausal} surfaced=${mean(scores.map((s) => s.surfacedCount)).toFixed(1)}`
-    );
+    const summary = {
+      baselineVersion: BASELINE_VERSION,
+      seeds: SEEDS.length,
+      signalRecall: round(mean(scores.map((s) => s.signalRecall))),
+      signalPrecision: round(mean(scores.map((s) => s.signalPrecision))),
+      noiseRatio: round(mean(scores.map((s) => s.noiseRatio))),
+      priorityAccuracy: priority.length > 0 ? round(mean(priority)) : null,
+      falseCausalClaims: scores.reduce((n, s) => n + s.falseCausalClaims, 0),
+      meanSurfaced: round(mean(scores.map((s) => s.surfacedCount))),
+    };
+    // A stored snapshot makes the floor diffable: any future change to the
+    // generator, the scorer, or the rules shows up as a reviewable delta
+    // instead of scrolling past in CI output.
+    expect(summary).toMatchSnapshot();
+
     // The rules were written against these exact planted shapes, so recall
-    // must be perfect — anything less means the scorer or the generator drifted.
-    expect(recall).toBe(1);
+    // must be perfect — anything less means the scorer or generator drifted.
+    expect(summary.signalRecall).toBe(1);
     // Rules cannot invent causality, so this must be zero by construction.
-    expect(falseCausal).toBe(0);
+    expect(summary.falseCausalClaims).toBe(0);
   });
 
   it("the baseline is deterministic: same seed, same score", async () => {

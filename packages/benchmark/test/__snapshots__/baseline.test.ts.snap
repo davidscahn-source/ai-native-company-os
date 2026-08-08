@@ -1,0 +1,14 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`deterministic baseline (the floor an LLM harness must beat) > stores the baseline as a committed snapshot, not console output 1`] = `
+{
+  "baselineVersion": "deterministic-baseline-v1.0",
+  "falseCausalClaims": 0,
+  "meanSurfaced": 2,
+  "noiseRatio": 0,
+  "priorityAccuracy": 1,
+  "seeds": 5,
+  "signalPrecision": 1,
+  "signalRecall": 1,
+}
+`;
