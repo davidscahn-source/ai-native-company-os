@@ -31,7 +31,19 @@ export async function validateInsights(
   }
   for (const [i, draft] of drafts.entries()) {
     if (draft.kind !== "recommendation") continue;
-    results[i] = validateRecommendation(draft, drafts, acceptedIndex) ?? draft;
+    const reason = validateRecommendation(draft, drafts, acceptedIndex);
+    if (reason !== null) {
+      results[i] = reason;
+      continue;
+    }
+    if (draft.category === "critical" && draft.evidenceRefs.length === 0) {
+      results[i] = "critical insight without evidence";
+      continue;
+    }
+    // Evidence is optional on a recommendation, but whatever refs it carries
+    // go through the same RLS resolution as claims — fabricated/cross-tenant
+    // ids must never be laundered into insights.evidence.
+    results[i] = { ...draft, evidenceRefs: await resolveEvidence(tx, draft.evidenceRefs) };
   }
 
   const accepted: InsightDraft[] = [];
@@ -69,7 +81,7 @@ async function validateClaim(tx: Queryable, draft: InsightDraft): Promise<Insigh
     case "unknown": {
       if (!draft.missing || draft.missing.length === 0)
         return "unknown without a reason for unanswerability";
-      return draft;
+      return { ...draft, evidenceRefs: await resolveEvidence(tx, draft.evidenceRefs) };
     }
     default:
       return "unexpected draft kind";

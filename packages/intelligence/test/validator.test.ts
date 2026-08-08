@@ -218,6 +218,58 @@ describe("evidence validator (the LLM is never the authority)", () => {
     expect(out.accepted[0]!.evidenceRefs).toEqual([{ type: "entity", id: realEntityId }]);
   });
 
+  it("recommendation/unknown evidence goes through RLS resolution too — no laundering", async () => {
+    const out = await withTenant(db, tenantA, (tx) =>
+      validateInsights(tx, [
+        fact([{ type: "event", id: realEventId }]),
+        {
+          kind: "recommendation",
+          category: "revenue",
+          statement: "조작된 evidence를 실은 추천",
+          confidence: null,
+          evidenceRefs: [
+            { type: "event", id: realEventId },
+            { type: "event", id: "00000000-0000-4000-8000-000000000000" },
+          ],
+          motivatedBy: 0,
+          missing: null,
+        },
+        {
+          kind: "unknown",
+          category: "unknown_signal",
+          statement: "모름",
+          confidence: null,
+          evidenceRefs: [{ type: "entity", id: "00000000-0000-4000-8000-000000000000" }],
+          motivatedBy: null,
+          missing: "데이터 없음",
+        },
+      ])
+    );
+    expect(out.accepted).toHaveLength(3);
+    // fabricated ids are stripped before anything can persist them
+    expect(out.accepted[1]!.evidenceRefs).toEqual([{ type: "event", id: realEventId }]);
+    expect(out.accepted[2]!.evidenceRefs).toEqual([]);
+  });
+
+  it("critical recommendation without evidence dies like any critical claim", async () => {
+    const out = await withTenant(db, tenantA, (tx) =>
+      validateInsights(tx, [
+        fact([{ type: "event", id: realEventId }]),
+        {
+          kind: "recommendation",
+          category: "critical",
+          statement: "근거 없는 critical 추천",
+          confidence: null,
+          evidenceRefs: [],
+          motivatedBy: 0,
+          missing: null,
+        },
+      ])
+    );
+    expect(out.accepted).toHaveLength(1);
+    expect(out.rejected[0]!.reason).toBe("critical insight without evidence");
+  });
+
   it("persists only accepted insights, with watermark + harness version", async () => {
     await withTenant(db, tenantA, async (tx) => {
       const out = await validateInsights(tx, [
