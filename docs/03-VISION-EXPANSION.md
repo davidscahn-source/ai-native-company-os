@@ -46,3 +46,65 @@ Founder Monitoring SaaS → AI Operations SaaS → AI COO → AI Workforce OS �
 ## §5. 전략 원칙 (원문 유지)
 
 > 처음부터 이 모든 걸 만들면 안 됩니다. Architecture만 확장 가능하게 만들어 놓고, 첫 제품은 극도로 단순해야 합니다. "Stripe + GitHub + Sentry + Slack + Linear를 연결하면, 내가 오늘 회사에서 무엇을 봐야 하는지 AI가 알려준다." **여기서 돈을 받는 것부터 시작해야 합니다.**
+
+---
+
+## §5. 제품 정의 4축 (2026-08-08 추가, non-normative)
+
+출처: founder ↔ GPT 대화 + Fable 평가. **이 절은 마일스톤을 바꾸지 않는다** — M3c 순서는 그대로다.
+
+| 축          | 내용                                                                   |
+| ----------- | ---------------------------------------------------------------------- |
+| **CONNECT** | API/OAuth/webhook/MCP를 몰라도 클릭으로 연결. MCP는 제품이 아니라 배관 |
+| **START**   | 운영 경험 없는 창업자에게 Recommended Setup(preset) 제공               |
+| **OPERATE** | 연결로 끝나지 않고 실제 운영을 대행 (report → propose → execute)       |
+| **SCALE**   | Startup → Growth → Scale → Enterprise, OS 설정이 함께 고도화           |
+
+내부 정의 문장 (Owner 확정 대기 — positioning은 Owner 결정):
+
+> 회사를 만들 때 **운영체계를 처음부터 발명하지 않아도 되는** 제품.
+
+### 5.1 제품 ≠ moat (중요)
+
+4축은 **제품**이지 **moat가 아니다.** 이를 뭉개면 복제 가능한 부분에 희소한 시간을 쓰게 된다.
+
+- CONNECT — moat 아님. Merge/Zapier/Nango가 이미 존재
+- START(preset) — 설계만으로는 moat 아님. 경쟁자가 주말이면 복제
+- SCALE(티어) — 패키징
+- **moat는 여전히** Company Graph / State / evidence·provenance / company memory / **어떤 운영이 실제로 도움이 되었는지의 축적 데이터**
+
+preset이 moat가 되는 경로는 **2차 효과**다: cross-customer outcome data에서 파생될 때
+("당신과 비슷한 회사들이 X를 켜서 Y를 더 일찍 잡았다"). 즉 고객이 먼저 있어야 한다.
+지금은 preset을 **차별화 기능**으로 다루되 moat로 계산하지 않는다.
+
+### 5.2 preset의 load-bearing 가정과 검증 경로
+
+"best-practice를 preset으로 만든다"는 **우리가 best practice를 안다**고 가정한다. 지금은 모른다
+(운영자 경험 미인코딩, dogfood 데이터 없음, 고객 0). **틀린 preset은 preset 없음보다 나쁘다** —
+창업자가 신뢰하고 잘못된 운영을 자동화하기 때문.
+
+검증 경로가 이미 있다: **M3c의 planted-signal 랩이 preset 품질을 측정하는 기계다.**
+"이 preset의 monitor 세트가 심은 신호를 잡는가"를 채점할 수 있다. preset은 먼 미래 기능이 아니라
+M3c가 검증 도구를 먼저 주는 항목이다.
+
+### 5.3 자율성 티어는 설정이 아니라 측정된 정밀도로 해금 (제안)
+
+"회사가 커지면 자동 실행"이 아니라 **"측정된 추천 정밀도가 임계를 넘으면"** 올라가야 한다.
+현재 risk-1 액션 1종에 추천 품질 증거는 0이다. 티어 승급 조건도 M3c 랩으로 측정한다.
+
+### 5.4 Company-in-a-Box: 추천은 찬성, provisioning은 반대
+
+§1 5단계(Company-in-a-Box)에서 **툴 추천**과 **툴 프로비저닝**을 분리한다.
+
+- ✅ **추천**: "B2B SaaS는 보통 Stripe+Linear+Sentry를 씁니다" + deep link — 싸고 안전
+- ❌ **프로비저닝**(계정 생성·구성 대행): billing 관계·계정 소유·자격증명 보유가 우리에게 옴.
+  신뢰/책임 표면이 폭증하고, 마진이 낮으며 파트너 의존적이고, **moat 기여가 0이다**
+  (moat는 graph/state/evidence이지 리셀링이 아니다). 읽기 중심 intelligence 레이어에서
+  프로비저너로 성격이 바뀌는 것은 되돌리기 어렵다.
+
+### 5.5 Local/Private LLM — 아키텍처는 이미 준비됨
+
+`packages/llm`은 논리 profile(FAST/BALANCED/REASONING)만 노출하고 provider 모델명·단가는
+`providers.ts`의 `routingFromEnv` 한 곳에만 존재한다 (D-010). PRIVATE/LOCAL profile 추가는
+비즈니스 코드 변경 0으로 가능하다. **MVP에서 로컬 LLM 운영 기능을 만드는 것은 반대**이며,
+사용자에게 Ollama/vLLM을 학습시키는 순간 실패다. 사용자 표면은 `Standard / Private / On-premise`까지.
