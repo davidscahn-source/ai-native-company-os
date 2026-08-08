@@ -103,19 +103,10 @@ async function runScenario(
   const runId = `${BENCHMARK_VERSION}:${opts.harness}:${sc.id}`;
   const tenant = await createTenant(db, `bench-${opts.harness}-${sc.id}`);
   const env: ScenarioEnv = {};
-  await ingestAllFixtures(db, tenant);
-  if (sc.setup) await sc.setup(db, tenant, env);
 
   const records: LlmCallRecord[] = [];
-  const gateway = buildGateway(sc, env, opts, records);
-
-  let promptSeen = "";
-  const captureScript = (messages: Parameters<Scenario["modelScript"]>[0]): string => {
-    promptSeen = messages.find((m) => m.role === "user")?.content ?? "";
-    return sc.modelScript(messages, env);
-  };
-  // rebuild the gateway with the capturing script unless a real adapter runs
-  const gw = opts.realAdapter ? gateway : buildGateway(sc, env, opts, records, captureScript);
+  const capture = { promptSeen: "" };
+  const gw = buildGateway(sc, env, opts, records, capture);
 
   let outcome: ScenarioOutcome = {
     scenarioId: sc.id,
@@ -132,6 +123,8 @@ async function runScenario(
   };
 
   try {
+    await ingestAllFixtures(db, tenant);
+    if (sc.setup) await sc.setup(db, tenant, env);
     await withTenant(db, tenant, async (tx) => {
       const snapshot = await computeSnapshot(tx, sc.cutoff);
       let delta: StateDelta | undefined;
@@ -176,7 +169,7 @@ async function runScenario(
 
   outcome = {
     ...outcome,
-    promptSeen,
+    promptSeen: capture.promptSeen,
     persisted: await withTenant(db, tenant, (tx) => countInsights(tx, runId)),
   };
 
@@ -198,7 +191,7 @@ function buildGateway(
   env: ScenarioEnv,
   opts: RunBenchmarkOptions,
   records: LlmCallRecord[],
-  script?: (messages: Parameters<Scenario["modelScript"]>[0]) => string
+  capture: { promptSeen: string }
 ): LlmGateway {
   const record = async (r: LlmCallRecord): Promise<void> => {
     records.push(r);
@@ -210,10 +203,20 @@ function buildGateway(
     outputPricePerMTok: 5,
   });
   const wiring = sc.gateway ?? "normal";
-  const scripted =
-    script ?? ((m: Parameters<Scenario["modelScript"]>[0]) => sc.modelScript(m, env));
 
-  const working: ProviderAdapter = opts.realAdapter ?? { ...mockAdapter(scripted), name: "mock" };
+  const inner: ProviderAdapter =
+    opts.realAdapter ??
+    mockAdapter((m: Parameters<Scenario["modelScript"]>[0]) => sc.modelScript(m, env));
+  // Capture wraps the ADAPTER, not the mock script, so prompt-based grading
+  // (scoping, constraints, cross-tenant leak checks) works identically in
+  // real-model runs — the run swaps only the inner adapter, nothing else.
+  const working: ProviderAdapter = {
+    name: "mock",
+    complete: async (req) => {
+      capture.promptSeen = req.messages.find((m) => m.role === "user")?.content ?? "";
+      return inner.complete(req);
+    },
+  };
   const dead: ProviderAdapter = {
     name: "dead",
     complete: async () => {

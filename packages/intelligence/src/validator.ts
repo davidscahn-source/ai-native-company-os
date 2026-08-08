@@ -104,20 +104,26 @@ function validateRecommendation(
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-/** Returns the refs that resolve in this tenant (RLS-scoped lookups). */
+/** Returns the refs that resolve in this tenant (RLS-scoped lookups, one query per table). */
 async function resolveEvidence(tx: Queryable, refs: EvidenceRef[]): Promise<EvidenceRef[]> {
-  const resolved: EvidenceRef[] = [];
-  for (const ref of refs) {
-    // Malformed ids are filtered in JS: a bad ::uuid cast would abort the
-    // enclosing transaction and poison every later lookup in the batch.
-    if (!UUID_RE.test(ref.id)) continue;
-    const table = ref.type === "event" ? "events" : "entities";
-    const rows = await tx.query<{ id: string }>(`select id from ${table} where id = $1::uuid`, [
-      ref.id,
-    ]);
-    if (rows.length > 0) resolved.push(ref);
+  // Malformed ids are filtered in JS: a bad ::uuid cast would abort the
+  // enclosing transaction and poison every later lookup in the batch.
+  const wellFormed = refs.filter((r) => UUID_RE.test(r.id));
+  const found = new Set<string>();
+  for (const table of ["events", "entities"] as const) {
+    const ids = wellFormed
+      .filter((r) => (table === "events" ? r.type === "event" : r.type === "entity"))
+      .map((r) => r.id);
+    if (ids.length === 0) continue;
+    const rows = await tx.query<{ id: string }>(
+      `select id from ${table} where id = any($1::uuid[])`,
+      [ids]
+    );
+    for (const row of rows) found.add(`${table}:${row.id}`);
   }
-  return resolved;
+  return wellFormed.filter((r) =>
+    found.has(`${r.type === "event" ? "events" : "entities"}:${r.id}`)
+  );
 }
 
 /** Persist accepted insights only. */

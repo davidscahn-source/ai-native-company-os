@@ -21,7 +21,7 @@ export interface ActionRow {
   risk_tier: number;
   status: "proposed" | "approved" | "rejected" | "executed";
   payload: { title: string; body: string };
-  approved_by: string | null;
+  decided_by: string | null;
 }
 
 /**
@@ -58,7 +58,7 @@ export async function decideAction(
   decidedBy: string
 ): Promise<void> {
   const rows = await tx.query<{ id: string }>(
-    `update actions set status = $2, approved_by = $3, decided_at = now()
+    `update actions set status = $2, decided_by = $3, decided_at = now()
      where id = $1 and status = 'proposed' returning id`,
     [actionId, decision, decidedBy]
   );

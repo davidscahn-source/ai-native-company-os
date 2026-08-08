@@ -10,7 +10,7 @@ create table actions (
   status text not null default 'proposed'
     check (status in ('proposed', 'approved', 'rejected', 'executed')),
   payload jsonb not null default '{}',
-  approved_by text,
+  decided_by text,
   proposed_at timestamptz not null default now(),
   decided_at timestamptz,
   executed_at timestamptz

@@ -83,43 +83,80 @@ export async function buildContext(
   const windowStartMs = new Date(capturedUntil).getTime() - windowMs;
 
   const relevantSources = questionClass ? CLASS_SOURCES[questionClass] : null;
+  const windowStart = new Date(windowStartMs).toISOString();
+  const summarize = (ev: EventRow): string =>
+    `${ev.event_type} @ ${new Date(ev.occurred_at).toISOString()} [${ev.source}]`;
 
-  // Deterministic candidate set: everything up to the cutoff, newest first,
-  // ties broken by id. Bounded fetch — beyond it we only claim "over budget".
+  // Selection happens in SQL so relevance/window can never be starved by a
+  // recency-bounded fetch (a burst of irrelevant-source events must not push
+  // relevant ones out of reach). One extra row detects budget overflow; the
+  // audit queries below record bounded SAMPLES of what was dropped and why.
+  const EXCLUSION_SAMPLE = 20;
+  const sourceCond = relevantSources ? `and source = any($4)` : "";
   const candidates = await tx.query<EventRow>(
     `select id, source, event_type, occurred_at, entity_id
-     from events where occurred_at <= $1
+     from events
+     where occurred_at <= $1 and occurred_at >= $2 ${sourceCond}
      order by occurred_at desc, id
-     limit $2`,
-    [capturedUntil, maxEvents * 3]
+     limit $3`,
+    relevantSources
+      ? [capturedUntil, windowStart, maxEvents + EXCLUSION_SAMPLE, relevantSources]
+      : [capturedUntil, windowStart, maxEvents + EXCLUSION_SAMPLE]
   );
 
   const evidence: ContextEvidence[] = [];
   const excluded: ContextExclusion[] = [];
   const selectedEntityIds: string[] = [];
 
-  for (const ev of candidates) {
+  for (const [i, ev] of candidates.entries()) {
     const ref: EvidenceRef = { type: "event", id: ev.id };
-    const summary = `${ev.event_type} @ ${new Date(ev.occurred_at).toISOString()} [${ev.source}]`;
-    if (relevantSources && !relevantSources.includes(ev.source)) {
-      excluded.push({ ref, summary, reason: `source_not_relevant:${questionClass}` });
-      continue;
-    }
-    if (new Date(ev.occurred_at).getTime() < windowStartMs) {
-      excluded.push({ ref, summary, reason: `outside_window:${windowMs}ms` });
-      continue;
-    }
-    if (evidence.length >= maxEvents) {
-      excluded.push({ ref, summary, reason: `over_event_budget:${maxEvents}` });
+    if (i >= maxEvents) {
+      excluded.push({ ref, summary: summarize(ev), reason: `over_event_budget:${maxEvents}` });
       continue;
     }
     const why = relevantSources
       ? `within window before capturedUntil; source ${ev.source} required by class ${questionClass}`
       : `within window before capturedUntil; recent activity (${ev.event_type})`;
-    evidence.push({ ref, summary, whySelected: why });
+    evidence.push({ ref, summary: summarize(ev), whySelected: why });
     if (ev.entity_id && !selectedEntityIds.includes(ev.entity_id)) {
       selectedEntityIds.push(ev.entity_id);
     }
+  }
+
+  // Audit trail (bounded samples): what the filters removed, and why.
+  if (relevantSources) {
+    const irrelevant = await tx.query<EventRow>(
+      `select id, source, event_type, occurred_at, entity_id
+       from events
+       where occurred_at <= $1 and occurred_at >= $2 and not (source = any($4))
+       order by occurred_at desc, id
+       limit $3`,
+      [capturedUntil, windowStart, EXCLUSION_SAMPLE, relevantSources]
+    );
+    for (const ev of irrelevant) {
+      excluded.push({
+        ref: { type: "event", id: ev.id },
+        summary: summarize(ev),
+        reason: `source_not_relevant:${questionClass}`,
+      });
+    }
+  }
+  const beforeWindow = await tx.query<EventRow>(
+    `select id, source, event_type, occurred_at, entity_id
+     from events
+     where occurred_at <= $1 and occurred_at < $2 ${sourceCond}
+     order by occurred_at desc, id
+     limit $3`,
+    relevantSources
+      ? [capturedUntil, windowStart, EXCLUSION_SAMPLE, relevantSources]
+      : [capturedUntil, windowStart, EXCLUSION_SAMPLE]
+  );
+  for (const ev of beforeWindow) {
+    excluded.push({
+      ref: { type: "event", id: ev.id },
+      summary: summarize(ev),
+      reason: `outside_window:${windowMs}ms`,
+    });
   }
 
   // Entities enter the package only because a selected event references them.
