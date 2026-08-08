@@ -47,7 +47,27 @@ importers:
         specifier: ^0.2.15
         version: 0.2.17
 
+  packages/graph:
+    dependencies:
+      "@companyos/db":
+        specifier: workspace:*
+        version: link:../db
+    devDependencies:
+      "@companyos/connectors":
+        specifier: workspace:*
+        version: link:../connectors
+
   packages/shared: {}
+
+  packages/state:
+    dependencies:
+      "@companyos/db":
+        specifier: workspace:*
+        version: link:../db
+    devDependencies:
+      "@companyos/connectors":
+        specifier: workspace:*
+        version: link:../connectors
 
 packages:
   "@electric-sql/pglite@0.2.17":

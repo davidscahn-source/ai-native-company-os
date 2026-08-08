@@ -17,9 +17,17 @@ export interface EventDraftOut {
   payload?: Record<string, unknown> | undefined;
 }
 
+export interface RelationshipDraftOut {
+  /** `${sourceType}:${sourceId}` refs into this batch's entities */
+  fromRef: string;
+  toRef: string;
+  type: string;
+}
+
 export interface NormalizedBatch {
   entities: EntityDraftOut[];
   events: EventDraftOut[];
+  relationships?: RelationshipDraftOut[] | undefined;
 }
 
 /**

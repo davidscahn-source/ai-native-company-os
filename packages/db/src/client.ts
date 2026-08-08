@@ -1,5 +1,5 @@
 import { PGlite } from "@electric-sql/pglite";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
@@ -33,8 +33,12 @@ export async function withTenant<T>(
 export async function createTestClient(): Promise<SqlClient> {
   const pg = new PGlite();
   const here = dirname(fileURLToPath(import.meta.url));
-  const migration = readFileSync(join(here, "..", "migrations", "0000_init.sql"), "utf8");
-  await pg.exec(migration);
+  const dir = join(here, "..", "migrations");
+  for (const file of readdirSync(dir)
+    .filter((f) => f.endsWith(".sql"))
+    .sort()) {
+    await pg.exec(readFileSync(join(dir, file), "utf8"));
+  }
   // Superusers bypass RLS entirely; the app must never be one. Mirror production
   // (Supabase app role) by demoting this session to a plain role.
   await pg.exec(`

@@ -1,5 +1,12 @@
 import type { SqlClient } from "@companyos/db";
-import { ingestRawEvent, insertEvent, markRawEvent, upsertEntity, withTenant } from "@companyos/db";
+import {
+  addRelationship,
+  ingestRawEvent,
+  insertEvent,
+  markRawEvent,
+  upsertEntity,
+  withTenant,
+} from "@companyos/db";
 import type { Normalizer } from "./types.js";
 
 export interface IngestResult {
@@ -61,6 +68,19 @@ export async function ingestPayload(
         payload: ev.payload ?? {},
       });
       if (ok) inserted += 1;
+    }
+
+    for (const rel of batch.relationships ?? []) {
+      const fromId = refToEntityId.get(rel.fromRef);
+      const toId = refToEntityId.get(rel.toRef);
+      if (!fromId || !toId)
+        throw new Error(`relationship ref not in batch: ${rel.fromRef} -> ${rel.toRef}`);
+      await addRelationship(tx, {
+        fromEntityId: fromId,
+        toEntityId: toId,
+        type: rel.type,
+        evidence: { rule: "provider_fk", eventIds: batch.events.map((e) => e.sourceEventId) },
+      });
     }
 
     await markRawEvent(tx, raw.rawEventId!, "processed");

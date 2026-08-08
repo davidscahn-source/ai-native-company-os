@@ -159,3 +159,41 @@ export async function markRawEvent(
     error ?? null,
   ]);
 }
+
+export interface RelationshipInput {
+  fromEntityId: string;
+  toEntityId: string;
+  type: string;
+  confidence?: number;
+  /** provenance: which rule created this edge and which source events prove it */
+  evidence: { rule: string; eventIds?: string[] };
+}
+
+/**
+ * Insert a graph edge with provenance. Both endpoints must be visible to the
+ * current tenant — FK checks bypass RLS, so we verify visibility explicitly to
+ * make cross-tenant edges impossible even with a leaked entity uuid.
+ */
+export async function addRelationship(tx: Queryable, rel: RelationshipInput): Promise<boolean> {
+  const visible = await tx.query<{ n: string }>(
+    `select count(*) as n from entities where id = $1 or id = $2`,
+    [rel.fromEntityId, rel.toEntityId]
+  );
+  if (Number(visible[0]!.n) !== 2) {
+    throw new Error("relationship endpoints must be visible to the current tenant");
+  }
+  const rows = await tx.query<{ id: string }>(
+    `insert into relationships (tenant_id, from_entity_id, to_entity_id, type, confidence, evidence)
+     values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1, $2, $3, $4, $5)
+     on conflict (tenant_id, from_entity_id, to_entity_id, type) do nothing
+     returning id`,
+    [
+      rel.fromEntityId,
+      rel.toEntityId,
+      rel.type,
+      rel.confidence ?? 1.0,
+      JSON.stringify(rel.evidence),
+    ]
+  );
+  return rows.length > 0;
+}

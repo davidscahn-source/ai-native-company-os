@@ -45,6 +45,9 @@ export const normalizeGithub: Normalizer = (payload: unknown): NormalizedBatch |
           canonical: { number: issue.number ?? null, repo: repo.full_name, labels },
         },
       ],
+      relationships: [
+        { fromRef: `repository:${String(repo.id)}`, toRef: `issue:${sourceId}`, type: "contains" },
+      ],
       events: [
         {
           // occurredAt is part of the key: close → reopen → close must not
@@ -76,6 +79,13 @@ export const normalizeGithub: Normalizer = (payload: unknown): NormalizedBatch |
           entityType: "pull_request",
           displayName: typeof pr.title === "string" ? pr.title : undefined,
           canonical: { number: pr.number ?? null, repo: repo.full_name, merged },
+        },
+      ],
+      relationships: [
+        {
+          fromRef: `repository:${String(repo.id)}`,
+          toRef: `pull_request:${sourceId}`,
+          type: "contains",
         },
       ],
       events: [

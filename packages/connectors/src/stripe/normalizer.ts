@@ -62,6 +62,9 @@ export const normalizeStripe: Normalizer = (payload: unknown): NormalizedBatch |
             },
           },
         ],
+        relationships: [
+          { fromRef: `customer:${customerId}`, toRef: `invoice:${str(obj.id)}`, type: "paid" },
+        ],
         events: [
           {
             sourceEventId: ev.id,
@@ -86,6 +89,9 @@ export const normalizeStripe: Normalizer = (payload: unknown): NormalizedBatch |
             entityType: "subscription",
             canonical: { status: obj.status ?? null, customer_source_id: customerId },
           },
+        ],
+        relationships: [
+          { fromRef: `customer:${customerId}`, toRef: `subscription:${str(obj.id)}`, type: "owns" },
         ],
         events: [
           {
