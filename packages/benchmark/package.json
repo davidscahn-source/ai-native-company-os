@@ -1,5 +1,5 @@
 {
-  "name": "@companyos/db",
+  "name": "@companyos/benchmark",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -11,7 +11,11 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run --hookTimeout=120000 --testTimeout=60000"
   },
-  "devDependencies": {
-    "@electric-sql/pglite": "^0.2.15"
+  "dependencies": {
+    "@companyos/connectors": "workspace:*",
+    "@companyos/db": "workspace:*",
+    "@companyos/intelligence": "workspace:*",
+    "@companyos/llm": "workspace:*",
+    "@companyos/state": "workspace:*"
   }
 }

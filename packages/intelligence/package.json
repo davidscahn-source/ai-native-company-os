@@ -9,14 +9,14 @@
   "scripts": {
     "lint": "eslint src test",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run --hookTimeout=120000 --testTimeout=60000"
   },
   "dependencies": {
     "@companyos/db": "workspace:*",
-    "@companyos/state": "workspace:*"
+    "@companyos/state": "workspace:*",
+    "@companyos/llm": "workspace:*"
   },
   "devDependencies": {
-    "@companyos/connectors": "workspace:*",
-    "@companyos/llm": "workspace:*"
+    "@companyos/connectors": "workspace:*"
   }
 }

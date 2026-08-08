@@ -32,6 +32,24 @@ importers:
         specifier: ^3.0.0
         version: 3.2.7(@types/node@26.2.0)
 
+  packages/benchmark:
+    dependencies:
+      "@companyos/connectors":
+        specifier: workspace:*
+        version: link:../connectors
+      "@companyos/db":
+        specifier: workspace:*
+        version: link:../db
+      "@companyos/intelligence":
+        specifier: workspace:*
+        version: link:../intelligence
+      "@companyos/llm":
+        specifier: workspace:*
+        version: link:../llm
+      "@companyos/state":
+        specifier: workspace:*
+        version: link:../state
+
   packages/connectors:
     dependencies:
       "@companyos/db":
@@ -62,6 +80,9 @@ importers:
       "@companyos/db":
         specifier: workspace:*
         version: link:../db
+      "@companyos/llm":
+        specifier: workspace:*
+        version: link:../llm
       "@companyos/state":
         specifier: workspace:*
         version: link:../state
@@ -69,9 +90,6 @@ importers:
       "@companyos/connectors":
         specifier: workspace:*
         version: link:../connectors
-      "@companyos/llm":
-        specifier: workspace:*
-        version: link:../llm
 
   packages/llm:
     dependencies:

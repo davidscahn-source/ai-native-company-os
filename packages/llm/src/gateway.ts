@@ -59,10 +59,12 @@ export class LlmGateway {
     for (let i = 0; i < attempts.length; i++) {
       const attempt = attempts[i]!;
       const fallbackUsed = i > 0;
-      const adapter = this.adapters.get(attempt.provider);
-      if (!adapter) throw new Error(`no adapter for provider ${attempt.provider}`);
       const start = performance.now();
       try {
+        // Inside the try so a misconfigured provider name is still one
+        // recorded attempt — the ledger must see every attempt, no exceptions.
+        const adapter = this.adapters.get(attempt.provider);
+        if (!adapter) throw new Error(`no adapter for provider ${attempt.provider}`);
         const out = await withTimeout(
           adapter.complete({
             model: attempt.model,
