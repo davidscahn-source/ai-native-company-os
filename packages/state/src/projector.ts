@@ -29,9 +29,11 @@ export interface CompanyStateSnapshot {
   completeness: Record<string, boolean>;
 }
 
+/** metric → the event type its value (and evidence) is derived from */
 const EVENT_METRICS: Record<string, string> = {
   bugs_detected: "bug.detected",
   failed_payments: "payment.failed",
+  failed_payment_value: "payment.failed",
   payments_completed: "payment.completed",
   subscriptions_cancelled: "subscription.cancelled",
   prs_merged: "pr.merged",
@@ -50,12 +52,21 @@ export async function computeSnapshot(
       capturedUntil,
     ]);
 
+  // Entity metrics are cutoff-scoped via first_observed_at (payload-derived,
+  // deterministic). NULL first_observed_at is excluded: an entity whose first
+  // observation is unknown cannot be proven to exist before any cutoff.
   const state: CompanyState = {
-    customers: await one(`select count(*) as n from entities where type = 'customer'`, []),
-    repositories: await one(`select count(*) as n from entities where type = 'repository'`, []),
+    customers: await one(
+      `select count(*) as n from entities where type = 'customer' and first_observed_at <= $1`,
+      [capturedUntil]
+    ),
+    repositories: await one(
+      `select count(*) as n from entities where type = 'repository' and first_observed_at <= $1`,
+      [capturedUntil]
+    ),
     open_bugs: await one(
       `select count(*) as n from entities b
-       where b.type = 'bug' and not exists (
+       where b.type = 'bug' and b.first_observed_at <= $1 and not exists (
          select 1 from events ev
          where ev.entity_id = b.id and ev.event_type = 'issue.closed' and ev.occurred_at <= $1
        )`,
@@ -107,25 +118,18 @@ export async function metricEvidence(
   }
   if (metric === "customers" || metric === "repositories") {
     const rows = await tx.query<{ id: string }>(
-      `select id from entities where type = $1 order by id`,
-      [metric === "customers" ? "customer" : "repository"]
+      `select id from entities where type = $1 and first_observed_at <= $2 order by id`,
+      [metric === "customers" ? "customer" : "repository", capturedUntil]
     );
     return rows.map((r) => r.id);
   }
   if (metric === "open_bugs") {
     const rows = await tx.query<{ id: string }>(
       `select b.id from entities b
-       where b.type = 'bug' and not exists (
+       where b.type = 'bug' and b.first_observed_at <= $1 and not exists (
          select 1 from events ev
          where ev.entity_id = b.id and ev.event_type = 'issue.closed' and ev.occurred_at <= $1
        ) order by b.id`,
-      [capturedUntil]
-    );
-    return rows.map((r) => r.id);
-  }
-  if (metric === "failed_payment_value") {
-    const rows = await tx.query<{ id: string }>(
-      `select id from events where event_type = 'payment.failed' and occurred_at <= $1 order by id`,
       [capturedUntil]
     );
     return rows.map((r) => r.id);

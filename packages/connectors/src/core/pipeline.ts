@@ -50,6 +50,19 @@ export async function ingestPayload(
       return { duplicate: false, ignored: true, failed: false, entities: 0, events: 0 };
     }
 
+    // A relationship ref outside the batch is a normalizer bug. Reject it here,
+    // before any inserts, so it is recorded like any other normalizer failure
+    // instead of aborting the transaction mid-write.
+    const entityRefs = new Set(batch.entities.map((d) => `${d.sourceType}:${d.sourceId}`));
+    const badRel = (batch.relationships ?? []).find(
+      (r) => !entityRefs.has(r.fromRef) || !entityRefs.has(r.toRef)
+    );
+    if (badRel) {
+      const msg = `relationship ref not in batch: ${badRel.fromRef} -> ${badRel.toRef}`;
+      await markRawEvent(tx, raw.rawEventId!, "failed", msg);
+      return { duplicate: false, ignored: false, failed: true, entities: 0, events: 0 };
+    }
+
     const refToEntityId = new Map<string, string>();
     for (const draft of batch.entities) {
       const id = await upsertEntity(tx, { provider, ...draft });
@@ -71,15 +84,17 @@ export async function ingestPayload(
     }
 
     for (const rel of batch.relationships ?? []) {
-      const fromId = refToEntityId.get(rel.fromRef);
-      const toId = refToEntityId.get(rel.toRef);
-      if (!fromId || !toId)
-        throw new Error(`relationship ref not in batch: ${rel.fromRef} -> ${rel.toRef}`);
       await addRelationship(tx, {
-        fromEntityId: fromId,
-        toEntityId: toId,
+        fromEntityId: refToEntityId.get(rel.fromRef)!,
+        toEntityId: refToEntityId.get(rel.toRef)!,
         type: rel.type,
-        evidence: { rule: "provider_fk", eventIds: batch.events.map((e) => e.sourceEventId) },
+        evidence: {
+          rule: "provider_fk",
+          // only the events about this edge's endpoints prove this edge
+          eventIds: batch.events
+            .filter((e) => e.entityRef === rel.fromRef || e.entityRef === rel.toRef)
+            .map((e) => e.sourceEventId),
+        },
       });
     }
 

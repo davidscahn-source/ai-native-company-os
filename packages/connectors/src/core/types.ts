@@ -5,6 +5,8 @@ export interface EntityDraftOut {
   entityType: string;
   displayName?: string | undefined;
   canonical?: Record<string, unknown> | undefined;
+  /** provider-payload-derived observation time (ISO) */
+  observedAt?: string | undefined;
 }
 
 export interface EventDraftOut {

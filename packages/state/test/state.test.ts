@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { SqlClient } from "@companyos/db";
 import { createTenant, createTestClient, withTenant } from "@companyos/db";
-import { ingestAllFixtures } from "@companyos/connectors";
+import { ingestAllFixtures } from "@companyos/connectors/testing";
 import { computeDelta } from "../src/delta.js";
 import { computeSnapshot, loadSnapshot, metricEvidence, saveSnapshot } from "../src/projector.js";
 
@@ -46,6 +46,11 @@ describe("company state projector (deterministic, LLM-free)", () => {
     const snap = await withTenant(db, tenant, (tx) => computeSnapshot(tx, CUT_BEFORE_GITHUB));
     expect(snap.state.bugs_detected).toBe(0);
     expect(snap.state.prs_merged).toBe(0);
+    // entity metrics are cutoff-scoped too: the repo/bug entities are first
+    // observed in github payloads dated after this cutoff
+    expect(snap.state.repositories).toBe(0);
+    expect(snap.state.open_bugs).toBe(0);
+    expect(snap.state.customers).toBe(1);
     expect(snap.completeness.github).toBeUndefined();
     expect(snap.completeness.stripe).toBe(true);
   });
@@ -84,8 +89,11 @@ describe("company state projector (deterministic, LLM-free)", () => {
         subscriptions_cancelled: 1,
         bugs_detected: 1,
         prs_merged: 1,
+        // entity metrics move with the cutoff: repo + bug first observed later
+        repositories: 1,
+        open_bugs: 1,
       });
-      // entity-count metrics did not change between cutoffs
+      // the customer was already observed before the early cutoff
       expect(byMetric.customers).toBeUndefined();
     });
   });

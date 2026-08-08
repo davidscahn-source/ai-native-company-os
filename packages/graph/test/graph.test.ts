@@ -7,7 +7,7 @@ import {
   upsertEntity,
   withTenant,
 } from "@companyos/db";
-import { ingestAllFixtures } from "@companyos/connectors";
+import { ingestAllFixtures } from "@companyos/connectors/testing";
 import { impactedCustomers, neighbors, pathBetween, timeline } from "../src/queries.js";
 
 describe("graph queries (deterministic, provenance-backed)", () => {
@@ -72,7 +72,8 @@ describe("graph queries (deterministic, provenance-backed)", () => {
     const path = await withTenant(db, tenant, (tx) => pathBetween(tx, invoiceId, subscriptionId));
     expect(path).not.toBeNull();
     expect(path!.nodes).toEqual([invoiceId, customerId, subscriptionId]);
-    expect(path!.edgeTypes).toEqual(["paid", "owns"]);
+    // in_100 is the payment_failed invoice — its FK edge is billed_to, not paid.
+    expect(path!.edgeTypes).toEqual(["billed_to", "owns"]);
   });
 
   it("pathBetween returns null across disconnected providers", async () => {

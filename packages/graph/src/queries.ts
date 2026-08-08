@@ -37,7 +37,7 @@ export async function neighbors(
      join entities e on e.id = w.node
      where w.node <> $1::uuid
      group by e.id, e.type, e.display_name
-     order by depth, e.type`,
+     order by depth, e.type, e.id`,
     [entityId, depth]
   );
 }
@@ -91,7 +91,7 @@ export async function pathBetween(
      )
      select nodes, edge_types from paths
      where frontier = $2::uuid
-     order by depth
+     order by depth, nodes
      limit 1`,
     [fromId, toId, maxDepth]
   );
